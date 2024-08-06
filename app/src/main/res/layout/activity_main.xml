@@ -32,7 +32,9 @@
                     android:layout_height="wrap_content"
                     android:hint="输入关键词搜索"
                     android:paddingLeft="0dp"
-                    android:paddingEnd="48dp" />
+                    android:paddingEnd="48dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatImageView

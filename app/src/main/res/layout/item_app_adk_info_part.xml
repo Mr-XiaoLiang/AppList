@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="2dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="8dp">
+
+    <TextView
+        android:id="@+id/typeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:textSize="11sp"
+        tools:background="#3f00"
+        tools:text="@string/app_name" />
+
+    <TextView
+        android:id="@+id/partValueView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingHorizontal="4dp"
+        android:textSize="11sp"
+        tools:background="#30f0"
+        tools:text="string/app_namestring/app_namestring/app_namestring/app_namestring/app_namestring/app_name" />
+
+</LinearLayout>

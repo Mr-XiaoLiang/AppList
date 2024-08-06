@@ -33,6 +33,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AppSdkInfoActivity"
+            android:exported="true" />
+
+        <provider
+            android:name=".InfoShareFileProvider"
+            android:authorities="${applicationId}.file.save.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/info_share_file_provider" />
+        </provider>
+
     </application>
 
 </manifest>

@@ -75,7 +75,8 @@ private object AppOptionHelper {
         QUICK_REMOVE("取消收藏"),
         COPY("复制包名"),
         SETTING("应用设置"),
-        OPEN("打开应用")
+        OPEN("打开应用"),
+        SDK("SDK")
     }
 
     fun showOptionDialog(context: Context, labelName: String, pkgName: String) {
@@ -99,6 +100,7 @@ private object AppOptionHelper {
             OptionMenu.OPEN -> true
             OptionMenu.QUICK_ADD -> !QuickAppHelper.isQuickApp(pkgName)
             OptionMenu.QUICK_REMOVE -> QuickAppHelper.isQuickApp(pkgName)
+            OptionMenu.SDK -> true
         }
     }
 
@@ -109,6 +111,7 @@ private object AppOptionHelper {
             OptionMenu.OPEN -> openApp(context, pkgName)
             OptionMenu.QUICK_ADD -> addQuickApp(context, pkgName)
             OptionMenu.QUICK_REMOVE -> removeQuickApp(context, pkgName)
+            OptionMenu.SDK -> openSdkInfo(context, pkgName)
         }
     }
 
@@ -150,6 +153,10 @@ private object AppOptionHelper {
             )
         )
         Toast.makeText(context, "包名已复制", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openSdkInfo(context: Context, packageName: String) {
+        AppSdkInfoActivity.start(context, packageName)
     }
 
 }
