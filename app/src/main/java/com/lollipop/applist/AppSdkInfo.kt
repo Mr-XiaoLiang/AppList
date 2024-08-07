@@ -15,10 +15,16 @@ class AppSdkInfo {
 
     fun clear() {
         platformMap.clear()
+        otherPlatform.clear()
+        selfPlatform?.clear()
     }
 
     fun setSelfPackageName(packageName: String) {
-        selfPlatform = Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+        if (packageName.isEmpty()) {
+            selfPlatform = null
+        } else {
+            selfPlatform = Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+        }
     }
 
     fun check(type: Type, value: String) {
@@ -54,7 +60,9 @@ class AppSdkInfo {
                 mutableList.add(it)
             }
         }
-        mutableList.add(otherPlatform)
+        if (otherPlatform.list.isNotEmpty()) {
+            mutableList.add(otherPlatform)
+        }
         return mutableList
     }
 
@@ -103,6 +111,10 @@ class AppSdkInfo {
             get() {
                 return itemList
             }
+
+        fun clear() {
+            itemList.clear()
+        }
 
         fun add(type: Type, value: String) {
             itemList.add(Item(type, value))

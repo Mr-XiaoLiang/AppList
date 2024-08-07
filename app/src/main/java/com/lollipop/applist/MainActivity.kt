@@ -1,16 +1,21 @@
 package com.lollipop.applist
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
-import android.view.View
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -46,12 +51,20 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
 
     private val executor = Executors.newCachedThreadPool()
 
+    private val apkChooser by lazy {
+        registerForActivityResult(ApkChooserContract()) {
+            onApkChooserResult(it)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
         initView()
         QuickAppHelper.addOnQuickAppChangeListener(this, this)
+        // 调用一下，让它实例化
+        apkChooser
     }
 
     private fun initView() {
@@ -110,23 +123,29 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
 
         binding.hintButton.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setMessage(
-                    """
-                    adb shell pm list package
-                    adb shell pm path [package name]
-                """.trimIndent()
-                )
-                .show()
+            showHintDialog()
         }
 
         binding.quickList.isVisible = false
 
     }
 
+    private fun showHintDialog() {
+        val menuList = OptionMenu.entries
+        val menuNameList = menuList.map { it.label }.toTypedArray()
+        MaterialAlertDialogBuilder(this)
+            .setItems(menuNameList) { dialog, which ->
+                doOption(menuList[which])
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     override fun onStart() {
         super.onStart()
-        loadAppInfo()
+        if (appList.isEmpty()) {
+            loadAppInfo()
+        }
     }
 
     private fun onQuickAppClick(pkgName: String) {
@@ -207,6 +226,66 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 binding.quickList.isVisible = quickAppList.isNotEmpty()
             }
         }
+    }
+
+    private fun doOption(optionMenu: OptionMenu) {
+        when (optionMenu) {
+            OptionMenu.LOAD_APK -> {
+                // TODO()
+                chooserFile()
+            }
+
+            OptionMenu.PM_LIST -> {
+                copy(this, optionMenu.label)
+            }
+
+            OptionMenu.PM_PATH -> {
+                copy(this, optionMenu.label)
+            }
+        }
+    }
+
+    private fun copy(context: Context, value: String) {
+        val clipboardManager = context.getSystemService(
+            Context.CLIPBOARD_SERVICE
+        ) as? ClipboardManager ?: return
+        clipboardManager.setPrimaryClip(ClipData.newPlainText(value, value))
+        Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+    }
+
+    private enum class OptionMenu(val label: String) {
+        PM_LIST("adb shell pm list package"),
+        PM_PATH("adb shell pm path [package]"),
+        LOAD_APK("解析APK")
+    }
+
+    private fun chooserFile() {
+        apkChooser.launch(Unit)
+    }
+
+    private fun onApkChooserResult(result: Uri?) {
+        result ?: return
+        AppSdkInfoActivity.startByPath(this, result)
+    }
+
+    private class ApkChooserContract : ActivityResultContract<Unit, Uri?>() {
+        override fun createIntent(context: Context, input: Unit): Intent {
+            return Intent.createChooser(
+                Intent(Intent.ACTION_GET_CONTENT).apply {
+                    setType("*/*")
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                },
+                "请选择一个APK文件"
+            )
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            if (resultCode == RESULT_OK) {
+                return intent?.data
+            }
+            return null
+        }
+
     }
 
 }

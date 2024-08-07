@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +16,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lollipop.applist.databinding.ActivitySdkInfoBinding
+import java.io.File
+import java.io.FileOutputStream
 
 class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
@@ -28,9 +32,9 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             }
         }
 
-        fun startByPath(context: Context, packagePath: String) {
+        fun startByPath(context: Context, packagePath: Uri) {
             start(context) {
-                it.putExtra(PARAMS_PACKAGE_PATH, packagePath)
+                it.data = packagePath
             }
         }
 
@@ -49,7 +53,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
     }
 
     private var packageName = ""
-    private var packagePath = ""
+    private var packagePath: Uri? = null
     private var appLabel: CharSequence = ""
 
     private val displayHelper = AppSdkDisplayHelper.create()
@@ -63,8 +67,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         setContentView(binding.root)
         initView()
         packageName = intent.getStringExtra(PARAMS_PACKAGE_NAME) ?: ""
-        packagePath = intent.getStringExtra(PARAMS_PACKAGE_PATH) ?: ""
-        sdkInfo.setSelfPackageName(packageName)
+        packagePath = intent.data
         updateTitle()
         onRefresh()
     }
@@ -163,7 +166,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         pmFlag = pmFlag or PackageManager.GET_PERMISSIONS
         val manager = packageManager
         val packageInfo = getPackageInfo(pmFlag)
-
+        sdkInfo.setSelfPackageName(packageInfo.packageName ?: "")
         packageInfo.activities?.forEach {
             sdkInfo.check(AppSdkInfo.Type.Activity, it.name)
         }
@@ -182,37 +185,65 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         packageInfo.receivers?.forEach {
             sdkInfo.check(AppSdkInfo.Type.Receiver, it.name)
         }
-        val applicationInfo = packageInfo.applicationInfo
+        packageInfo.applicationInfo?.let { applicationInfo ->
+            appLabel = applicationInfo.loadLabel(manager)
 
-        appLabel = applicationInfo.loadLabel(manager)
-
-        applicationInfo.metaData?.let { metaData ->
-            metaData.keySet().forEach { key ->
-                val value = "$key = ${metaData.get(key)}"
-                sdkInfo.check(AppSdkInfo.Type.MetaData, value)
+            applicationInfo.metaData?.let { metaData ->
+                metaData.keySet().forEach { key ->
+                    val value = "$key = ${metaData.get(key)}"
+                    sdkInfo.check(AppSdkInfo.Type.MetaData, value)
+                }
             }
         }
 
         sdkInfo.app.let { app ->
-            app.packageName = packageInfo.packageName
-            app.versionCode = packageInfo.longVersionCode.toString()
-            app.versionName = packageInfo.versionName
+            app.packageName = packageInfo.packageName ?: ""
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                app.versionCode = packageInfo.longVersionCode.toString()
+            } else {
+                app.versionCode = packageInfo.versionCode.toString()
+            }
+            app.versionName = packageInfo.versionName ?: ""
             app.label = appLabel.toString()
         }
     }
 
     private fun getPackageInfo(flags: Int): PackageInfo {
-        try {
-            val manager = packageManager
-            return if (packageName.isNotEmpty()) {
-                manager.getPackageInfo(packageName, flags)
-            } else {
-                manager.getPackageArchiveInfo(packagePath, flags) ?: PackageInfo()
+        var resultInfo: PackageInfo? = null
+        val manager = packageManager ?: return PackageInfo()
+        if (packageName.isNotEmpty()) {
+            try {
+                resultInfo = manager.getPackageInfo(packageName, flags)
+            } catch (e: Throwable) {
+                e.printStackTrace()
             }
-        } catch (e: Throwable) {
-            e.printStackTrace()
         }
-        return PackageInfo()
+        val localUri = packagePath
+        val localPath = localUri?.path ?: ""
+        if (resultInfo == null && localPath.isNotEmpty()) {
+            try {
+                resultInfo = manager.getPackageArchiveInfo(localPath, flags)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+        if (resultInfo == null && localUri != null) {
+            try {
+                val tempApk = File(cacheDir, "temp.apk")
+                if (tempApk.exists()) {
+                    tempApk.delete()
+                }
+                contentResolver.openInputStream(localUri).use { input ->
+                    val output = FileOutputStream(tempApk)
+                    input?.copyTo(output)
+                }
+                resultInfo = manager.getPackageArchiveInfo(tempApk.absolutePath, flags)
+                packagePath = Uri.parse(tempApk.absolutePath)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+        return resultInfo ?: PackageInfo()
     }
 
 }
