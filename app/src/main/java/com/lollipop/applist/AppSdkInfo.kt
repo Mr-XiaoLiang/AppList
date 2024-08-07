@@ -7,15 +7,30 @@ class AppSdkInfo {
 
     private val platformMap = HashMap<String, Platform>()
 
-    private val otherPlatform = Platform(AdsKeyword.OTHER)
+    private val otherPlatform = Platform(SdkKeyword.OTHER)
+
+    private var selfPlatform: Platform? = null
+
+    val app = AppInfo()
 
     fun clear() {
         platformMap.clear()
     }
 
+    fun setSelfPackageName(packageName: String) {
+        selfPlatform = Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+    }
+
     fun check(type: Type, value: String) {
-        val ads = AdsKeyword.match(value)
-        if (ads.isEmpty()) {
+        var isMatchSelf = false
+        selfPlatform?.let { self ->
+            if (self.sdk.isMatch(value)) {
+                self.add(type, value)
+                isMatchSelf = true
+            }
+        }
+        val ads = SdkKeyword.match(value)
+        if (ads.isEmpty() && !isMatchSelf) {
             otherPlatform.add(type, value)
         } else {
             ads.forEach { ad ->
@@ -34,16 +49,22 @@ class AppSdkInfo {
 
     fun getList(): List<Platform> {
         val mutableList = platformMap.values.toMutableList()
+        selfPlatform?.let {
+            if (it.list.isNotEmpty()) {
+                mutableList.add(it)
+            }
+        }
         mutableList.add(otherPlatform)
         return mutableList
     }
 
     fun toJson(): JSONArray {
         val jsonArray = JSONArray()
+        jsonArray.put(getAppInfoJson())
         val list = getList()
         list.forEach { platform ->
             val platformObj = JSONObject()
-            platformObj.put("ADS", platform.ads.label)
+            platformObj.put("SDK", platform.sdk.label)
             val itemArray = JSONArray()
             platform.list.forEach { item ->
                 val itemObj = JSONObject()
@@ -57,8 +78,24 @@ class AppSdkInfo {
         return jsonArray
     }
 
+    private fun getAppInfoJson(): JSONObject {
+        val json = JSONObject()
+        json.put("package", app.packageName)
+        json.put("versionName", app.versionName)
+        json.put("versionCode", app.versionCode)
+        json.put("label", app.label)
+        return json
+    }
+
+    class AppInfo {
+        var packageName: String = ""
+        var versionName: String = ""
+        var versionCode: String = ""
+        var label: String = ""
+    }
+
     class Platform(
-        val ads: AdsKeyword.Ads
+        val sdk: SdkKeyword.Sdk
     ) {
         private val itemList = ArrayList<Item>()
 

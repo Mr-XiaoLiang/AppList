@@ -76,7 +76,7 @@ private object AppOptionHelper {
         COPY("复制包名"),
         SETTING("应用设置"),
         OPEN("打开应用"),
-        SDK("SDK")
+        SDK("SDK列表")
     }
 
     fun showOptionDialog(context: Context, labelName: String, pkgName: String) {
@@ -156,7 +156,7 @@ private object AppOptionHelper {
     }
 
     private fun openSdkInfo(context: Context, packageName: String) {
-        AppSdkInfoActivity.start(context, packageName)
+        AppSdkInfoActivity.startByPackage(context, packageName)
     }
 
 }

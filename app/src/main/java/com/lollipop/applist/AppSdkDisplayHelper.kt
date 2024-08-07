@@ -59,7 +59,7 @@ object AppSdkDisplayHelper {
             } else {
                 COLOR_DIFFERENT
             }
-            resultList.add(SdkInfo.Title(platform.ads, color))
+            resultList.add(SdkInfo.Title(platform.sdk, color))
             for (item in platform.list) {
                 resultList.add(SdkInfo.Part(item, color))
             }
@@ -71,7 +71,7 @@ object AppSdkDisplayHelper {
 
     sealed class SdkInfo {
 
-        class Title(val ads: AdsKeyword.Ads, val background: Int) : SdkInfo()
+        class Title(val sdk: SdkKeyword.Sdk, val background: Int) : SdkInfo()
 
         class Part(val item: AppSdkInfo.Item, val background: Int) : SdkInfo()
 
@@ -181,7 +181,7 @@ object AppSdkDisplayHelper {
         class GroupTitle(private val binding: ItemAppAdkInfoTitleBinding) : SdkInfoHolder(binding) {
 
             fun bind(info: SdkInfo.Title) {
-                binding.adLabelView.text = info.ads.label
+                binding.adLabelView.text = info.sdk.label
                 binding.root.setBackgroundColor(info.background)
             }
 
