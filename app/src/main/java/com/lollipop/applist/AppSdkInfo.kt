@@ -128,6 +128,7 @@ class AppSdkInfo {
         Receiver("Receiver", 0xFF00B57C.toInt()),
         MetaData("MetaData", 0xFF0076B5.toInt()),
         Permission("Permission", 0xFF9400B5.toInt()),
+        Native("Native", 0xFF00DEB6.toInt())
     }
 
     class Item(

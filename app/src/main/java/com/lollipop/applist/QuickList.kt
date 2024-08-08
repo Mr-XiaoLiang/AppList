@@ -8,7 +8,7 @@ import com.lollipop.applist.databinding.ItemQuickAppBinding
 
 class QuickAppAdapter(
     private val list: List<AppInfo>,
-    private val onItemClick: (String) -> Unit
+    private val onItemClick: (AppInfo) -> Unit
 ) :
     RecyclerView.Adapter<QuickAppHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuickAppHolder {
@@ -18,12 +18,19 @@ class QuickAppAdapter(
                 parent,
                 false
             ),
-            onItemClick
+            ::onItemClick
         )
     }
 
     override fun getItemCount(): Int {
         return list.size
+    }
+
+    private fun onItemClick(position: Int) {
+        if (position < 0 || position >= list.size) {
+            return
+        }
+        onItemClick(list[position])
     }
 
     override fun onBindViewHolder(holder: QuickAppHolder, position: Int) {
@@ -34,7 +41,7 @@ class QuickAppAdapter(
 
 class QuickAppHolder(
     private val viewBinding: ItemQuickAppBinding,
-    private val onItemClick: (String) -> Unit
+    private val onItemClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(viewBinding.root) {
 
     init {
@@ -43,18 +50,14 @@ class QuickAppHolder(
         }
     }
 
-    private var currentApp: AppInfo? = null
-
     fun bind(info: AppInfo) {
         viewBinding.appIconView.setImageDrawable(info.icon)
-        currentApp = info
     }
 
     private fun onItemClick() {
-        val packageName = currentApp?.packageName ?: return
-        if (packageName.isEmpty()) {
+        if (adapterPosition == RecyclerView.NO_POSITION) {
             return
         }
-        onItemClick(packageName)
+        onItemClick(adapterPosition)
     }
 }

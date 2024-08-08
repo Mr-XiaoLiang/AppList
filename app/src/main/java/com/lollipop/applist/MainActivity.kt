@@ -12,7 +12,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
-import android.widget.FrameLayout
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 resources.displayMetrics
             ).toInt()
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<FrameLayout.LayoutParams> {
+            v.updateLayoutParams<MarginLayoutParams> {
                 leftMargin = dp16 + systemBars.left
                 topMargin = dp16 + systemBars.top
                 rightMargin = dp16 + systemBars.right
@@ -148,9 +148,9 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
     }
 
-    private fun onQuickAppClick(pkgName: String) {
+    private fun onQuickAppClick(info: AppInfo) {
         runOnUiThread {
-            binding.searchInputView.setText(pkgName)
+            AppOptionHelper.showOptionDialog(this, info.name.toString(), info.packageName)
         }
     }
 

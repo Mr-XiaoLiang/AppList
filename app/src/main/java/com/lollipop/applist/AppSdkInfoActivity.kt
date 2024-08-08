@@ -9,6 +9,9 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +27,6 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
     companion object {
 
         private const val PARAMS_PACKAGE_NAME = "PACKAGE_NAME"
-        private const val PARAMS_PACKAGE_PATH = "PACKAGE_PATH"
 
         fun startByPackage(context: Context, packageName: String) {
             start(context) {
@@ -73,9 +75,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
     }
 
     private fun updateTitle() {
-        binding.titleView.post {
-            binding.titleView.text = appLabel.ifEmpty { packageName }
-        }
+        setTitle(appLabel.ifEmpty { packageName })
     }
 
     private fun initView() {
@@ -90,21 +90,8 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
-        binding.backButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-        binding.saveButton.setOnClickListener {
-            InfoSaveHelper.save(
-                context = this,
-                name = getSaveFileName(),
-                infoProvider = {
-                    sdkInfo.toJson().toString(4)
-                },
-                onEnd = {
-                    Toast.makeText(this, "保存完成: $it", Toast.LENGTH_SHORT).show()
-                }
-            )
-        }
+        setSupportActionBar(binding.actionBar)
+        supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         binding.swipeRefreshLayout.setColorSchemeColors(
             Color.RED,
             Color.GREEN,
@@ -154,6 +141,50 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_sdk_info, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+            }
+
+            R.id.menu_save -> {
+                saveInfo()
+            }
+
+            R.id.menu_info -> {
+
+            }
+
+            R.id.menu_filter -> {
+
+            }
+
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+        return true
+    }
+
+    private fun saveInfo() {
+        InfoSaveHelper.save(
+            context = this,
+            name = getSaveFileName(),
+            infoProvider = {
+                sdkInfo.toJson().toString(4)
+            },
+            onEnd = {
+                Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
+                    .show()
+            }
+        )
+    }
+
     private fun getAppInfoSync() {
         sdkInfo.clear()
 
@@ -194,6 +225,13 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
                     sdkInfo.check(AppSdkInfo.Type.MetaData, value)
                 }
             }
+
+            applicationInfo.nativeLibraryDir?.let { nativeLibraryDir ->
+                File(nativeLibraryDir).list()?.forEach { fileName ->
+                    sdkInfo.check(AppSdkInfo.Type.Native, fileName)
+                }
+            }
+
         }
 
         sdkInfo.app.let { app ->

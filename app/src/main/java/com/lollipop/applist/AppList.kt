@@ -68,7 +68,7 @@ class AppViewHolder(
     }
 }
 
-private object AppOptionHelper {
+object AppOptionHelper {
 
     enum class OptionMenu(val label: String) {
         QUICK_ADD("收藏应用"),
