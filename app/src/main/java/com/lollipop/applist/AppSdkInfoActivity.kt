@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -157,7 +156,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             }
 
             R.id.menu_info -> {
-
+                AppSdkDisplayHelper.showSdkInfo(this)
             }
 
             R.id.menu_filter -> {

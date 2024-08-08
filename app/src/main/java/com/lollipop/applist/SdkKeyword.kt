@@ -226,6 +226,10 @@ data object SdkKeyword {
         )
     )
 
+    fun forEach(callback: (Sdk) -> Unit) {
+        sdkLists.forEach(callback)
+    }
+
     fun match(value: String): List<Sdk> {
         return sdkLists.filter { it.isMatch(value) }
     }
