@@ -64,7 +64,9 @@ object AppSdkDisplayHelper {
             }
             resultList.add(SdkInfo.Title(platform.sdk, color))
             for (item in platform.list) {
-                resultList.add(SdkInfo.Part(item, color))
+                if (AppSdkInfo.typeEnable(item.type)) {
+                    resultList.add(SdkInfo.Part(item, color))
+                }
             }
             resultList.add(SdkInfo.Footer(color))
             colorMode = !colorMode

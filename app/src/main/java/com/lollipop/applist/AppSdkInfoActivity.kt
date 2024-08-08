@@ -9,7 +9,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lollipop.applist.databinding.ActivitySdkInfoBinding
 import java.io.File
 import java.io.FileOutputStream
@@ -74,7 +74,9 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
     }
 
     private fun updateTitle() {
-        setTitle(appLabel.ifEmpty { packageName })
+        binding.actionBar.post {
+            binding.actionBar.title = appLabel.ifEmpty { packageName }
+        }
     }
 
     private fun initView() {
@@ -89,8 +91,12 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
-        setSupportActionBar(binding.actionBar)
-        supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
+        binding.actionBar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        binding.actionBar.setOnMenuItemClickListener {
+            onOptionsItemClick(it)
+        }
         binding.swipeRefreshLayout.setColorSchemeColors(
             Color.RED,
             Color.GREEN,
@@ -140,12 +146,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_sdk_info, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun onOptionsItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressedDispatcher.onBackPressed()
@@ -160,7 +161,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             }
 
             R.id.menu_filter -> {
-
+                showFilterDialog()
             }
 
             else -> {
@@ -281,6 +282,27 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             }
         }
         return resultInfo ?: PackageInfo()
+    }
+
+    private fun showFilterDialog() {
+        val allEntries = AppSdkInfo.Type.entries
+        val allItemNameArray = allEntries.map { it.label }.toTypedArray()
+        val checkedItems = allEntries.map { AppSdkInfo.typeEnable(it) }.toBooleanArray()
+        MaterialAlertDialogBuilder(this)
+            .setMultiChoiceItems(
+                allItemNameArray,
+                checkedItems
+            ) { dialog, which, isChecked ->
+                onFilterChanged(allEntries[which], isChecked)
+            }
+            .setOnDismissListener {
+                onRefresh()
+            }
+            .show()
+    }
+
+    private fun onFilterChanged(type: AppSdkInfo.Type, enable: Boolean) {
+        AppSdkInfo.setTypeFilter(type, enable)
     }
 
 }

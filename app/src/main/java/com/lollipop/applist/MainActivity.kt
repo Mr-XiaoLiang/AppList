@@ -231,7 +231,6 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
     private fun doOption(optionMenu: OptionMenu) {
         when (optionMenu) {
             OptionMenu.LOAD_APK -> {
-                // TODO()
                 chooserFile()
             }
 

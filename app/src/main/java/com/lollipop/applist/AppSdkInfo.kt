@@ -5,6 +5,18 @@ import org.json.JSONObject
 
 class AppSdkInfo {
 
+    companion object {
+        private val typeFilterMap = HashMap<Type, Boolean>()
+
+        fun typeEnable(type: Type): Boolean {
+            return typeFilterMap[type] ?: true
+        }
+
+        fun setTypeFilter(type: Type, enable: Boolean) {
+            typeFilterMap[type] = enable
+        }
+    }
+
     private val platformMap = HashMap<String, Platform>()
 
     private val otherPlatform = Platform(SdkKeyword.OTHER)
@@ -20,10 +32,10 @@ class AppSdkInfo {
     }
 
     fun setSelfPackageName(packageName: String) {
-        if (packageName.isEmpty()) {
-            selfPlatform = null
+        selfPlatform = if (packageName.isEmpty()) {
+            null
         } else {
-            selfPlatform = Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+            Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
         }
     }
 
@@ -75,10 +87,12 @@ class AppSdkInfo {
             platformObj.put("SDK", platform.sdk.label)
             val itemArray = JSONArray()
             platform.list.forEach { item ->
-                val itemObj = JSONObject()
-                itemObj.put("type", item.type.label)
-                itemObj.put("value", item.value)
-                itemArray.put(itemObj)
+                if (typeEnable(item.type)) {
+                    val itemObj = JSONObject()
+                    itemObj.put("type", item.type.label)
+                    itemObj.put("value", item.value)
+                    itemArray.put(itemObj)
+                }
             }
             platformObj.put("items", itemArray)
             jsonArray.put(platformObj)
