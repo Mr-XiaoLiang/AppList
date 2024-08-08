@@ -40,6 +40,9 @@ class AppSdkInfo {
     }
 
     fun check(type: Type, value: String) {
+        if (!typeEnable(type)) {
+            return
+        }
         var isMatchSelf = false
         selfPlatform?.let { self ->
             if (self.sdk.isMatch(value)) {
@@ -87,12 +90,10 @@ class AppSdkInfo {
             platformObj.put("SDK", platform.sdk.label)
             val itemArray = JSONArray()
             platform.list.forEach { item ->
-                if (typeEnable(item.type)) {
-                    val itemObj = JSONObject()
-                    itemObj.put("type", item.type.label)
-                    itemObj.put("value", item.value)
-                    itemArray.put(itemObj)
-                }
+                val itemObj = JSONObject()
+                itemObj.put("type", item.type.label)
+                itemObj.put("value", item.value)
+                itemArray.put(itemObj)
             }
             platformObj.put("items", itemArray)
             jsonArray.put(platformObj)
