@@ -8,4 +8,7 @@
     <color name="titleOnBackground">#FFEEEEEE</color>
     <color name="summaryOnBackground">#FFAAAAAA</color>
 
+    <color name="launcherBackground">#FF222222</color>
+    <color name="launcherDragHolder">#FFAAAAAA</color>
+    <color name="launcherItemBackground">#AA000000</color>
 </resources>

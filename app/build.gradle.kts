@@ -15,8 +15,8 @@ android {
         applicationId = "com.lollipop.applist"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 1_02_00
+        versionName = "1.2.0"
     }
 
     buildTypes {
@@ -43,5 +43,5 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation(libs.androidx.swiperefreshlayout)
 }

@@ -57,20 +57,38 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
     }
 
+    private val launcherSheetHelper by lazy {
+        LauncherBottomSheetHelper(
+            binding.launcherBottomSheet,
+            binding.launcherDragHolderView,
+            binding.launcherContentView
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
         initView()
+        initLauncher()
         QuickAppHelper.addOnQuickAppChangeListener(this, this)
         // 调用一下，让它实例化
         apkChooser
     }
 
+    private fun initLauncher() {
+        onBackPressedDispatcher.addCallback(launcherSheetHelper.backPressedCallback)
+    }
+
     private fun initView() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom)
+            v.setPadding(
+                systemBars.left,
+                0,
+                systemBars.right,
+                launcherSheetHelper.getSheetPeekInsets(systemBars)
+            )
             insets
         }
 
@@ -91,7 +109,8 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 leftMargin = dp16 + systemBars.left
                 topMargin = dp16 + systemBars.top
                 rightMargin = dp16 + systemBars.right
-                bottomMargin = dp16 + systemBars.bottom
+                bottomMargin =
+                    dp16 + launcherSheetHelper.getSheetPeekInsets(systemBars)
             }
             insets
         }
@@ -160,12 +179,17 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
             val list = getAppList().sortedBy { it.name.toString() }
             runOnUiThread {
                 binding.swipeRefreshLayout.isRefreshing = false
-                appList.clear()
-                appList.addAll(list)
-                QuickAppHelper.loadQuickApp(this)
-                search()
+                onFullAppListLoaded(list)
             }
         }
+    }
+
+    private fun onFullAppListLoaded(list: List<AppInfo>) {
+        appList.clear()
+        appList.addAll(list)
+        QuickAppHelper.loadQuickApp(this)
+        search()
+        launcherSheetHelper.updateAppList(list)
     }
 
     override fun onStop() {
@@ -200,7 +224,8 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
             AppInfo(
                 it.loadLabel(manager),
                 it.packageName,
-                it.loadIcon(manager)
+                it.loadIcon(manager),
+                it.loadIcon(manager),
             )
         }
     }

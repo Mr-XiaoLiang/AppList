@@ -4,8 +4,12 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="itemBackgroundA">#FFFFFFFF</color>
-    <color name="itemBackgroundB">#EEEEEEEE</color>
+    <color name="itemBackgroundB">#FFEEEEEE</color>
     <color name="titleOnBackground">#FF333333</color>
     <color name="summaryOnBackground">#FF666666</color>
+
+    <color name="launcherBackground">#FFEEEEEE</color>
+    <color name="launcherDragHolder">#FF666666</color>
+    <color name="launcherItemBackground">#AAFFFFFF</color>
 
 </resources>

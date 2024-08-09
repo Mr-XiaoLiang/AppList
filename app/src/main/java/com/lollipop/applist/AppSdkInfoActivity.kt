@@ -157,7 +157,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             }
 
             R.id.menu_info -> {
-                AppSdkDisplayHelper.showSdkInfo(this)
+                SdkKeywordListDialog.show(this)
             }
 
             R.id.menu_filter -> {
