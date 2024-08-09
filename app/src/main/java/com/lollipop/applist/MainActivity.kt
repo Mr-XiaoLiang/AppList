@@ -5,6 +5,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
@@ -150,7 +152,14 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
     }
 
     private fun showHintDialog() {
-        val menuList = OptionMenu.entries
+        val filterSystemApp = isFilterSystemApp()
+        val menuList = OptionMenu.entries.filter {
+            when (it) {
+                OptionMenu.FILTER_SYSTEM_APP -> !filterSystemApp
+                OptionMenu.PASS_SYSTEM_APP -> filterSystemApp
+                else -> true
+            }
+        }
         val menuNameList = menuList.map { it.label }.toTypedArray()
         MaterialAlertDialogBuilder(this)
             .setItems(menuNameList) { dialog, which ->
@@ -175,8 +184,9 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
 
     private fun loadAppInfo() {
         binding.swipeRefreshLayout.isRefreshing = true
+        val filterSystemApp = isFilterSystemApp()
         executor.execute {
-            val list = getAppList().sortedBy { it.name.toString() }
+            val list = getAppList(filterSystemApp).sortedBy { it.name.toString() }
             runOnUiThread {
                 binding.swipeRefreshLayout.isRefreshing = false
                 onFullAppListLoaded(list)
@@ -217,17 +227,24 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         adapter.notifyDataSetChanged()
     }
 
-    private fun getAppList(): List<AppInfo> {
+    private fun getAppList(filterSystemApp: Boolean): List<AppInfo> {
         val manager = packageManager
         val applications = manager.getInstalledApplications(PackageManager.GET_ACTIVITIES)
-        return applications.map {
-            AppInfo(
-                it.loadLabel(manager),
-                it.packageName,
-                it.loadIcon(manager),
-                it.loadIcon(manager),
+        val resultList = mutableListOf<AppInfo>()
+        for (app in applications) {
+            if (filterSystemApp && app.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
+                continue
+            }
+            resultList.add(
+                AppInfo(
+                    app.loadLabel(manager),
+                    app.packageName,
+                    app.loadIcon(manager),
+                    app.loadIcon(manager),
+                )
             )
         }
+        return resultList
     }
 
     private fun postSearch() {
@@ -266,6 +283,16 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
             OptionMenu.PM_PATH -> {
                 copy(this, optionMenu.label)
             }
+
+            OptionMenu.FILTER_SYSTEM_APP -> {
+                filterSystemApp(true)
+                loadAppInfo()
+            }
+
+            OptionMenu.PASS_SYSTEM_APP -> {
+                filterSystemApp(false)
+                loadAppInfo()
+            }
         }
     }
 
@@ -280,7 +307,9 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
     private enum class OptionMenu(val label: String) {
         PM_LIST("adb shell pm list package"),
         PM_PATH("adb shell pm path [package]"),
-        LOAD_APK("解析APK")
+        LOAD_APK("解析APK"),
+        FILTER_SYSTEM_APP("过滤系统应用"),
+        PASS_SYSTEM_APP("保留系统应用"),
     }
 
     private fun chooserFile() {
@@ -290,6 +319,18 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
     private fun onApkChooserResult(result: Uri?) {
         result ?: return
         AppSdkInfoActivity.startByPath(this, result)
+    }
+
+    private fun filterSystemApp(enable: Boolean) {
+        getPreferences().edit().putBoolean("filterSystemApp", enable).apply()
+    }
+
+    private fun isFilterSystemApp(): Boolean {
+        return getPreferences().getBoolean("filterSystemApp", false)
+    }
+
+    private fun getPreferences(): SharedPreferences {
+        return getSharedPreferences("AppList", Context.MODE_PRIVATE)
     }
 
     private class ApkChooserContract : ActivityResultContract<Unit, Uri?>() {
