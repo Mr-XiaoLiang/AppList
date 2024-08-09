@@ -59,8 +59,13 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
     }
 
-    private val launcherSheetHelper by lazy {
-        LauncherBottomSheetHelper(
+    private val launcherSheetHelper: LauncherSheetHelper by lazy {
+//        LauncherSheetHelper.BottomSheet(
+//            binding.launcherBottomSheet,
+//            binding.launcherDragHolderView,
+//            binding.launcherContentView
+//        )
+        LauncherSheetHelper.SideSheet(
             binding.launcherBottomSheet,
             binding.launcherDragHolderView,
             binding.launcherContentView
@@ -89,7 +94,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 systemBars.left,
                 0,
                 systemBars.right,
-                launcherSheetHelper.getSheetPeekInsets(systemBars)
+                launcherSheetHelper.getSheetPeekInsets(systemBars).bottom
             )
             insets
         }
@@ -112,7 +117,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 topMargin = dp16 + systemBars.top
                 rightMargin = dp16 + systemBars.right
                 bottomMargin =
-                    dp16 + launcherSheetHelper.getSheetPeekInsets(systemBars)
+                    dp16 + launcherSheetHelper.getSheetPeekInsets(systemBars).bottom
             }
             insets
         }
@@ -149,6 +154,9 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
 
         binding.quickList.isVisible = false
 
+        binding.menuButton.setOnClickListener {
+            launcherSheetHelper.expand()
+        }
     }
 
     private fun showHintDialog() {
