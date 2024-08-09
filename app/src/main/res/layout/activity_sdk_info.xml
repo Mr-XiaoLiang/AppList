@@ -18,8 +18,8 @@
             android:minHeight="?attr/actionBarSize"
             app:menu="@menu/menu_sdk_info"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
-            app:navigationIconTint="#333"
-            app:titleTextColor="#333"
+            app:navigationIconTint="@color/titleOnBackground"
+            app:titleTextColor="@color/titleOnBackground"
             tools:title="actionBaractionBaractionBar" />
 
     </com.google.android.material.appbar.AppBarLayout>

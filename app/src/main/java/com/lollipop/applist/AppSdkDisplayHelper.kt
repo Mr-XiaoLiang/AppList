@@ -1,8 +1,8 @@
 package com.lollipop.applist
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
@@ -13,6 +13,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -23,9 +24,6 @@ import com.lollipop.applist.databinding.ItemAppAdkInfoTitleBinding
 import com.lollipop.applist.databinding.ItemDialogSdkKeywordsBinding
 
 object AppSdkDisplayHelper {
-
-    const val COLOR_DEFAULT = Color.WHITE
-    const val COLOR_DIFFERENT = 0xFFEEEEEE.toInt()
 
     fun create(): Delegate {
         return Delegate()
@@ -38,9 +36,9 @@ object AppSdkDisplayHelper {
         val adapter = Adapter(dataList)
 
         @SuppressLint("NotifyDataSetChanged")
-        fun update(list: List<AppSdkInfo.Platform>) {
+        fun update(context: Context, list: List<AppSdkInfo.Platform>) {
             dataList.clear()
-            dataList.addAll(transform(list))
+            dataList.addAll(transform(context, list))
             adapter.notifyDataSetChanged()
         }
 
@@ -53,14 +51,16 @@ object AppSdkDisplayHelper {
 
     }
 
-    fun transform(list: List<AppSdkInfo.Platform>): List<SdkInfo> {
+    fun transform(context: Context, list: List<AppSdkInfo.Platform>): List<SdkInfo> {
+        val colorA = ContextCompat.getColor(context, R.color.itemBackgroundA)
+        val colorB = ContextCompat.getColor(context, R.color.itemBackgroundB)
         var colorMode = true
         val resultList = mutableListOf<SdkInfo>()
         for (platform in list) {
             val color = if (colorMode) {
-                COLOR_DEFAULT
+                colorA
             } else {
-                COLOR_DIFFERENT
+                colorB
             }
             resultList.add(SdkInfo.Title(platform.sdk, color))
             for (item in platform.list) {

@@ -132,7 +132,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             val l = end - start
             onUI {
                 updateTitle()
-                displayHelper.update(sdkInfo.getList())
+                displayHelper.update(this, sdkInfo.getList())
                 binding.swipeRefreshLayout.isRefreshing = false
                 isLoading = false
                 Toast.makeText(this, "耗时: ${l}ms", Toast.LENGTH_SHORT).show()

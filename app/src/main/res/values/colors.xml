@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="itemBackgroundA">#FFFFFFFF</color>
+    <color name="itemBackgroundB">#EEEEEEEE</color>
+    <color name="titleOnBackground">#FF333333</color>
+    <color name="summaryOnBackground">#FF666666</color>
+
 </resources>

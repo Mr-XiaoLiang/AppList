@@ -38,12 +38,16 @@ object QuickAppHelper {
     }
 
     private val notifyTask = Runnable {
-        observerList.forEach {
-            try {
-                it.onQuickAppChange()
-            } catch (e: Throwable) {
-                e.printStackTrace()
+        try {
+            observerList.forEach {
+                try {
+                    it.onQuickAppChange()
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                }
             }
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
 

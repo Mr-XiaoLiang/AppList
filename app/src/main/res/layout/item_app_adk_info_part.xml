@@ -26,6 +26,7 @@
         android:layout_gravity="center_vertical"
         android:paddingHorizontal="4dp"
         android:textSize="11sp"
+        android:textColor="@color/summaryOnBackground"
         tools:background="#30f0"
         tools:text="string/app_namestring/app_namestring/app_namestring/app_namestring/app_namestring/app_name" />
 
