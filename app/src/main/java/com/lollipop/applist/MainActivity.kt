@@ -59,17 +59,8 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
     }
 
-    private val launcherSheetHelper: LauncherSheetHelper by lazy {
-//        LauncherSheetHelper.BottomSheet(
-//            binding.launcherBottomSheet,
-//            binding.launcherDragHolderView,
-//            binding.launcherContentView
-//        )
-        LauncherSheetHelper.SideSheet(
-            binding.launcherBottomSheet,
-            binding.launcherDragHolderView,
-            binding.launcherContentView
-        )
+    private val launcherPanelHelper by lazy {
+        LauncherContentHelper(binding.launcherContentView)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +75,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
     }
 
     private fun initLauncher() {
-        onBackPressedDispatcher.addCallback(launcherSheetHelper.backPressedCallback)
+        launcherPanelHelper
     }
 
     private fun initView() {
@@ -94,7 +85,17 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 systemBars.left,
                 0,
                 systemBars.right,
-                launcherSheetHelper.getSheetPeekInsets(systemBars).bottom
+                systemBars.bottom
+            )
+            insets
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.launcherContentView) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(
+                systemBars.left,
+                0,
+                systemBars.right,
+                systemBars.bottom
             )
             insets
         }
@@ -116,8 +117,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 leftMargin = dp16 + systemBars.left
                 topMargin = dp16 + systemBars.top
                 rightMargin = dp16 + systemBars.right
-                bottomMargin =
-                    dp16 + launcherSheetHelper.getSheetPeekInsets(systemBars).bottom
+                bottomMargin = dp16 + systemBars.bottom
             }
             insets
         }
@@ -155,8 +155,13 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         binding.quickList.isVisible = false
 
         binding.menuButton.setOnClickListener {
-            launcherSheetHelper.expand()
+            if (binding.slidingPaneLayout.isOpen) {
+                binding.slidingPaneLayout.close()
+            } else {
+                binding.slidingPaneLayout.open()
+            }
         }
+
     }
 
     private fun showHintDialog() {
@@ -184,6 +189,15 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.slidingPaneLayout.post {
+            val density = resources.displayMetrics.density
+            val dpWidth = binding.slidingPaneLayout.width / density
+            binding.menuButton.isVisible = dpWidth < 600f
+        }
+    }
+
     private fun onQuickAppClick(info: AppInfo) {
         runOnUiThread {
             AppOptionHelper.showOptionDialog(this, info.name.toString(), info.packageName)
@@ -207,7 +221,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         appList.addAll(list)
         QuickAppHelper.loadQuickApp(this)
         search()
-        launcherSheetHelper.updateAppList(list)
+        launcherPanelHelper.updateAppList(list)
     }
 
     override fun onStop() {

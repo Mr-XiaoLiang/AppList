@@ -8,18 +8,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="0dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/actionBar"
@@ -30,16 +18,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
             <FrameLayout
                 android:layout_width="0px"
-                android:layout_weight="1"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="12dp"
                     android:layout_marginVertical="8dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -70,12 +59,13 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/menuButton"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="end|center_vertical"
+                android:layout_marginStart="12dp"
                 android:layout_marginTop="4dp"
-                android:layout_marginEnd="24dp"
-                android:src="@drawable/baseline_add_circle_outline_24"
+                android:padding="12dp"
+                android:src="@drawable/baseline_apps_24"
                 android:tint="?colorPrimary" />
 
         </LinearLayout>
@@ -89,36 +79,33 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
-        android:id="@+id/launcherBottomSheet"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_launcher_bottom_sheet"
-        android:elevation="20dp"
-        android:orientation="vertical"
-        app:behavior_peekHeight="@dimen/launcher_peek_height"
-        app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
+        android:elevation="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
-            android:id="@+id/launcherDragHolderView"
+        <androidx.slidingpanelayout.widget.SlidingPaneLayout
+            android:id="@+id/slidingPaneLayout"
             android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:minHeight="24dp">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center"
-                android:background="@drawable/ic_bottom_sheet_drag_holder" />
-        </FrameLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="300dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/launcherContentView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="8dp" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/launcherContentView"
+                android:layout_width="300dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent" />
 
-    </LinearLayout>
+        </androidx.slidingpanelayout.widget.SlidingPaneLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/hintButton"

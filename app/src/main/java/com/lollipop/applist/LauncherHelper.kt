@@ -20,10 +20,12 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.sidesheet.SideSheetCallback
 import com.lollipop.applist.databinding.ItemDialogLauncherBinding
+import com.lollipop.applist.databinding.ItemSpaceBinding
 import kotlin.math.max
 
 sealed class LauncherSheetHelper(
@@ -220,12 +222,16 @@ class LauncherContentHelper(
     val contentView: RecyclerView
 ) {
 
-    private val appList = mutableListOf<AppInfo>()
+    companion object {
+        private const val SPAN_COUNT = 3
+    }
+
+    private val appList = mutableListOf<Any>()
 
     private val adapter = AppAdapter(appList)
 
     init {
-        contentView.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
+        contentView.layoutManager = StaggeredGridLayoutManager(SPAN_COUNT, RecyclerView.VERTICAL)
         contentView.adapter = adapter
     }
 
@@ -233,21 +239,44 @@ class LauncherContentHelper(
     fun updateAppList(list: List<AppInfo>) {
         appList.clear()
         appList.addAll(list)
+        // 三个空位给占位
+        for (i in 0 until SPAN_COUNT) {
+            appList.add("")
+        }
         adapter.notifyDataSetChanged()
     }
 
-    private class AppAdapter(private val list: List<AppInfo>) :
-        RecyclerView.Adapter<AppViewHolder>() {
+    private class AppAdapter(private val list: List<Any>) :
+        RecyclerView.Adapter<Holder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-            return AppViewHolder(
-                ItemDialogLauncherBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                ),
-                ::onItemClick
-            )
+        companion object {
+            private const val TYPE_APP = 1
+            private const val TYPE_SPACE = 0
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            return when (viewType) {
+                TYPE_APP -> {
+                    Holder.App(
+                        ItemDialogLauncherBinding.inflate(
+                            LayoutInflater.from(parent.context),
+                            parent,
+                            false
+                        ),
+                        ::onItemClick
+                    )
+                }
+
+                else -> {
+                    Holder.Space(
+                        ItemSpaceBinding.inflate(
+                            LayoutInflater.from(parent.context),
+                            parent,
+                            false
+                        )
+                    )
+                }
+            }
         }
 
         private fun onItemClick(itemView: View, position: Int) {
@@ -255,15 +284,37 @@ class LauncherContentHelper(
                 return
             }
             val info = list[position]
-            AppOptionHelper.showOptionDialog(
-                itemView.context,
-                info.name.toString(),
-                info.packageName
-            )
+            if (info is AppInfo) {
+                AppOptionHelper.showOptionDialog(
+                    itemView.context,
+                    info.name.toString(),
+                    info.packageName
+                )
+            }
         }
 
-        override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-            holder.bind(list[position])
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            when (holder) {
+                is Holder.App -> {
+                    val info = list[position]
+                    if (info is AppInfo) {
+                        holder.bind(info)
+                    }
+                }
+
+                is Holder.Space -> {
+
+                }
+            }
+
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            val item = list[position]
+            if (item is AppInfo) {
+                return TYPE_APP
+            }
+            return TYPE_SPACE
         }
 
         override fun getItemCount(): Int {
@@ -272,49 +323,55 @@ class LauncherContentHelper(
 
     }
 
-    private class AppViewHolder(
-        private val viewBinding: ItemDialogLauncherBinding,
-        private val onItemClick: (View, Int) -> Unit
-    ) : RecyclerView.ViewHolder(viewBinding.root) {
+    private sealed class Holder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+        class App(
+            private val viewBinding: ItemDialogLauncherBinding,
+            private val onItemClick: (View, Int) -> Unit
+        ) : Holder(viewBinding) {
 
-        init {
-            viewBinding.root.setOnClickListener {
-                onItemClick()
-            }
-            viewBinding.cardContentView.clipToOutline = true
-            val clipRoundRadius = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                8F,
-                viewBinding.root.resources.displayMetrics
-            )
-            viewBinding.cardContentView.outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) {
-                    outline.setRoundRect(0, 0, view.width, view.height, clipRoundRadius)
+            init {
+                viewBinding.root.setOnClickListener {
+                    onItemClick()
                 }
-            };
-        }
+                viewBinding.cardContentView.clipToOutline = true
+                val clipRoundRadius = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    8F,
+                    viewBinding.root.resources.displayMetrics
+                )
+                viewBinding.cardContentView.outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, clipRoundRadius)
+                    }
+                };
+            }
 
-        private fun onItemClick() {
-            if (adapterPosition != RecyclerView.NO_POSITION) {
-                onItemClick(itemView, adapterPosition)
+            private fun onItemClick() {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    onItemClick(itemView, adapterPosition)
+                }
+            }
+
+            fun bind(info: AppInfo) {
+                viewBinding.labelView.text = info.name
+                val icon = info.launcherIcon
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && icon is AdaptiveIconDrawable) {
+                    viewBinding.appIconView.setImageDrawable(icon.foreground)
+                    viewBinding.appIconView.scaleX = 1.6F
+                    viewBinding.appIconView.scaleY = 1.6F
+                    viewBinding.cardContentView.background = icon.background
+                } else {
+                    viewBinding.appIconView.scaleX = 1F
+                    viewBinding.appIconView.scaleY = 1F
+                    viewBinding.appIconView.setImageDrawable(icon)
+                    viewBinding.cardContentView.setBackgroundResource(R.color.launcherItemBackground)
+                }
             }
         }
 
-        fun bind(info: AppInfo) {
-            viewBinding.labelView.text = info.name
-            val icon = info.launcherIcon
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && icon is AdaptiveIconDrawable) {
-                viewBinding.appIconView.setImageDrawable(icon.foreground)
-                viewBinding.appIconView.scaleX = 1.6F
-                viewBinding.appIconView.scaleY = 1.6F
-                viewBinding.cardContentView.background = icon.background
-            } else {
-                viewBinding.appIconView.scaleX = 1F
-                viewBinding.appIconView.scaleY = 1F
-                viewBinding.appIconView.setImageDrawable(icon)
-                viewBinding.cardContentView.setBackgroundResource(R.color.launcherItemBackground)
-            }
-        }
+        class Space(private val viewBinding: ItemSpaceBinding) : Holder(viewBinding)
+
     }
+
 }
 

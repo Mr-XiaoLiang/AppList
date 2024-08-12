@@ -44,4 +44,5 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
 }
