@@ -15,8 +15,8 @@ android {
         applicationId = "com.lollipop.applist"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1_02_00
-        versionName = "1.2.0"
+        versionCode = 1_03_00
+        versionName = "1.3.0"
     }
 
     buildTypes {
