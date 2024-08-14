@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AppList"
 include(":app")
- 
+include(":desktop")
