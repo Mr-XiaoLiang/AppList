@@ -22,6 +22,9 @@ kotlin {
         implementation(compose.ui)
         implementation(compose.components.resources)
         implementation(compose.components.uiToolingPreview)
+        implementation(compose.materialIconsExtended)
+        implementation(compose.preview)
+        implementation(compose.uiTooling)
 
         // system
         implementation(compose.desktop.currentOs)
@@ -34,6 +37,10 @@ kotlin {
 
         // https://mvnrepository.com/artifact/org.json/json
         implementation(libs.json)
+
+        implementation(project(":sdkList"))
+
+        implementation(project(":jadx"))
     }
 
 }

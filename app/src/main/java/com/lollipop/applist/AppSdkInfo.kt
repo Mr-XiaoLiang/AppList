@@ -19,7 +19,7 @@ class AppSdkInfo {
 
     private val platformMap = HashMap<String, Platform>()
 
-    private val otherPlatform = Platform(SdkKeyword.OTHER)
+    private val otherPlatform = Platform(com.lollipop.applist.sdklist.SdkKeyword.OTHER)
 
     private var selfPlatform: Platform? = null
 
@@ -35,7 +35,7 @@ class AppSdkInfo {
         selfPlatform = if (packageName.isEmpty()) {
             null
         } else {
-            Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+            Platform(com.lollipop.applist.sdklist.SdkKeyword.Sdk("Self", listOf(packageName)))
         }
     }
 
@@ -50,7 +50,7 @@ class AppSdkInfo {
                 isMatchSelf = true
             }
         }
-        val ads = SdkKeyword.match(value)
+        val ads = com.lollipop.applist.sdklist.SdkKeyword.match(value)
         if (ads.isEmpty() && !isMatchSelf) {
             otherPlatform.add(type, value)
         } else {
@@ -118,7 +118,7 @@ class AppSdkInfo {
     }
 
     class Platform(
-        val sdk: SdkKeyword.Sdk
+        val sdk: com.lollipop.applist.sdklist.SdkKeyword.Sdk
     ) {
         private val itemList = ArrayList<Item>()
 

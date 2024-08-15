@@ -71,7 +71,7 @@ object AppSdkDisplayHelper {
 
     sealed class SdkInfo {
 
-        class Title(val sdk: SdkKeyword.Sdk, val background: Int) : SdkInfo()
+        class Title(val sdk: com.lollipop.applist.sdklist.SdkKeyword.Sdk, val background: Int) : SdkInfo()
 
         class Part(val item: AppSdkInfo.Item, val background: Int) : SdkInfo()
 

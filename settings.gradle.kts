@@ -22,3 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "AppList"
 include(":app")
 include(":desktop")
+include(":sdkList")
+include(":jadx")

@@ -12,7 +12,7 @@ object SdkKeywordListDialog {
 
     fun show(activity: ComponentActivity) {
         val displayList = mutableListOf<SdkInfoDisplayInfo>()
-        SdkKeyword.forEach {
+        com.lollipop.applist.sdklist.SdkKeyword.forEach {
             displayList.add(SdkInfoDisplayInfo(it.label, it.keywords.joinToString(", ")))
         }
         BottomSheetDialog(activity).apply {

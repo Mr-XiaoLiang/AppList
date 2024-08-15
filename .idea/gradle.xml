@@ -11,6 +11,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/desktop" />
+            <option value="$PROJECT_DIR$/jadx" />
+            <option value="$PROJECT_DIR$/sdkList" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
