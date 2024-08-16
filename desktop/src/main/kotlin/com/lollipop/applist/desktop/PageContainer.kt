@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.onClick
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -36,22 +37,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lollipop.applist.jadx.JadxTask
 import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PageContainer(
-    fileList: List<File>,
-    callClose: (File) -> Unit
+    fileList: List<JadxTask>,
+    callClose: (JadxTask) -> Unit
 ) {
 
-    var currentFile by remember { mutableStateOf<File?>(null) }
+    val currentFile by remember { JadxComposeState.currentTask }
     var dropdownExpanded by remember { mutableStateOf(false) }
+    val currentProgress by remember { JadxComposeState.activeTaskProgress }
 
-    val closeFileCallback = { file: File ->
-        callClose(file)
-        if (currentFile == file) {
-            currentFile = null
+    val closeFileCallback = { task: JadxTask ->
+        callClose(task)
+        if (currentFile == task) {
+            JadxComposeState.currentTask(null)
         }
     }
 
@@ -64,13 +67,13 @@ fun PageContainer(
     ) {
         if (currentFile == null) {
             if (fileList.isNotEmpty()) {
-                currentFile = fileList[0]
+                JadxComposeState.currentTask(fileList[0])
             }
         }
         if (currentFile != null) {
             Card(
                 modifier = Modifier.fillMaxWidth().height(36.dp).onClick {
-                    dropdownExpanded = true
+                    dropdownExpanded = !dropdownExpanded
                 },
                 elevation = 12.dp,
                 backgroundColor = Color.White,
@@ -101,28 +104,31 @@ fun PageContainer(
             contentAlignment = Alignment.TopCenter
         ) {
             ContentPage(currentFile)
+            LinearProgressIndicator(
+                progress = currentProgress,
+                modifier = Modifier.fillMaxWidth(),
+            )
             DropdownPanel(
                 fileList,
                 dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false },
                 callClose = closeFileCallback
             ) { file ->
-                currentFile = file
+                JadxComposeState.currentTask(file)
                 dropdownExpanded = false
             }
         }
     }
-    // TODO: Implement the PageContainer
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DropdownPanel(
-    fileList: List<File>,
+    fileList: List<JadxTask>,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    callClose: (File) -> Unit,
-    onClick: (File) -> Unit
+    callClose: (JadxTask) -> Unit,
+    onClick: (JadxTask) -> Unit
 ) {
     AnimatedVisibility(
         visible = expanded,

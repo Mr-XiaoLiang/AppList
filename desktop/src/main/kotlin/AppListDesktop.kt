@@ -11,7 +11,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.lollipop.applist.desktop.DragBox
+import com.lollipop.applist.desktop.JadxComposeState
 import com.lollipop.applist.desktop.PageContainer
+import com.lollipop.applist.jadx.JadxTask
+import com.lollipop.applist.jadx.JadxTaskManager
 import java.io.File
 import java.util.LinkedList
 
@@ -19,7 +22,7 @@ import java.util.LinkedList
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AppListDesktop() {
-    val fileList = remember { mutableStateListOf<File>() }
+    val fileList = remember { mutableStateListOf<JadxTask>() }
     DragBox(
         modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colors.surface),
         showMask = fileList.isEmpty(),
@@ -45,7 +48,7 @@ private fun log(value: String) {
     println(value)
 }
 
-private fun MutableList<File>.addAllFile(path: String) {
+private fun MutableList<JadxTask>.addAllFile(path: String) {
     val realPath = if (path.startsWith("file:")) {
         path.substring(5)
     } else {
@@ -57,7 +60,7 @@ private fun MutableList<File>.addAllFile(path: String) {
         return
     }
     if (file.isFile) {
-        add(file)
+        add(createTask(file))
         log("添加文件：${file.path}")
         return
     }
@@ -75,13 +78,21 @@ private fun MutableList<File>.addAllFile(path: String) {
                 log("遍历目录：${f.path}")
             }
         } else if (first.isFile) {
-            add(first)
+            add(createTask(first))
             log("添加文件：${file.path}")
         }
     }
 }
 
+private fun createTask(file: File): JadxTask {
+    return JadxTask(file).apply {
+        JadxTaskManager.addTask(this)
+
+    }
+}
+
 fun main() = application {
+    JadxComposeState.init()
     // 先初始化语言
     Window(
         onCloseRequest = ::exitApplication,
