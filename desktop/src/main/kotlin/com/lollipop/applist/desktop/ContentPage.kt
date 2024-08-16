@@ -20,10 +20,12 @@ import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,8 +43,9 @@ fun ContentPage(task: JadxTask?) {
     val sdkInfoList = remember { JadxComposeState.sdkInfoList }
     val sourceCodeList = remember { JadxComposeState.platformSourceCodeList }
     val sdkTypeFilterList = remember { JadxComposeState.sdkTypeFilterList }
+    val selectedPlatform by remember { JadxComposeState.selectedPlatform }
     Row(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp)
     ) {
         Column(
             modifier = Modifier.width(200.dp).wrapContentHeight()
@@ -129,7 +132,11 @@ fun ContentPage(task: JadxTask?) {
                         ) {
                             Text(
                                 text = platform.sdk.label,
-                                color = Color(0xFF333333.toInt()),
+                                color = if (platform.sdk == selectedPlatform) {
+                                    MaterialTheme.colors.primary
+                                } else {
+                                    Color(0xFF333333.toInt())
+                                },
                                 fontSize = 22.sp,
                                 modifier = Modifier.padding(vertical = 6.dp)
                             )
@@ -147,7 +154,7 @@ fun ContentPage(task: JadxTask?) {
                                         )
                                             .background(
                                                 color = Color(item.type.color),
-                                                shape = RoundedCornerShape(2.dp)
+                                                shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 4.dp, vertical = 2.dp)
                                     )
                                     Text(

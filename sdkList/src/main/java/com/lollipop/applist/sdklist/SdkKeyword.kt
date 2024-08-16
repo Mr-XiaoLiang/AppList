@@ -30,7 +30,7 @@ data object SdkKeyword {
         ),
         Sdk(
             "XiaoMi",
-            listOf("xiaomi", "miui", "hyper", "com.mi.")
+            listOf(".xiaomi.", ".miui.", ".hyper.", "com.mi.")
         ),
         Sdk(
             "Microsoft",
@@ -38,27 +38,27 @@ data object SdkKeyword {
         ),
         Sdk(
             "Chrome",
-            listOf("chrome", "chromium")
+            listOf(".chrome.", ".chromium.")
         ),
         Sdk(
             "Baidu",
-            listOf("baidu")
+            listOf(".baidu.")
         ),
         Sdk(
             "Bugly",
-            listOf("bugly", "libcrashlytics")
+            listOf(".bugly.", "libcrashlytics")
         ),
         Sdk(
             "UMeng",
-            listOf("umeng")
+            listOf(".umeng.")
         ),
         Sdk(
             "Amazon",
-            listOf("amazon")
+            listOf(".amazon.")
         ),
         Sdk(
             "Fyber",
-            listOf("fyber")
+            listOf(".fyber.")
         ),
         Sdk(
             "TradPlus",
@@ -66,7 +66,7 @@ data object SdkKeyword {
         ),
         Sdk(
             "Sigmob",
-            listOf("sigmob")
+            listOf(".sigmob.")
         ),
         Sdk(
             "快手",
@@ -178,7 +178,7 @@ data object SdkKeyword {
         ),
         Sdk(
             "Adjust",
-            listOf("adjust")
+            listOf(".adjust.")
         ),
         Sdk(
             "10086",
