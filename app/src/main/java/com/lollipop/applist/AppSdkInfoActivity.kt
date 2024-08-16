@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lollipop.applist.databinding.ActivitySdkInfoBinding
+import com.lollipop.applist.sdklist.AppSdkInfo
 import java.io.File
 import java.io.FileOutputStream
 

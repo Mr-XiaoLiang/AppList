@@ -17,5 +17,7 @@ kotlin {
         implementation("io.github.skylot:jadx-java-convert:1.5.0")
         implementation("io.github.skylot:jadx-smali-input:1.5.0")
         implementation("io.github.skylot:jadx-raung-input:1.5.0")
+
+        implementation(project(":sdkList"))
     }
 }

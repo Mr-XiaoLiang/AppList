@@ -17,10 +17,17 @@ object JadxTaskManager {
         private set
 
     private var activeTaskProgressOutListener: ActiveTaskProgressListener? = null
+    private var activeTaskCompletedOutListener: ActiveTaskCompletedListener? = null
 
     private val activeTaskProgressListener = JadxTask.ProgressListener {
         currentTaskProgress = it
         activeTaskProgressOutListener?.onProgress(it)
+    }
+
+    private val activeTaskCompletedListener = JadxTask.OnCompletedListener {
+        if (it == activeTask) {
+            activeTaskCompletedOutListener?.onCompleted(it)
+        }
     }
 
     private fun getTaskKey(task: JadxTask): String {
@@ -32,12 +39,17 @@ object JadxTaskManager {
         if (taskMap.containsKey(taskKey)) {
             return
         }
+        task.setOnCompletedListener(activeTaskCompletedListener)
         taskMap[taskKey] = task
         startTask(task)
     }
 
     fun activeTaskProgressListener(listener: ActiveTaskProgressListener?) {
         activeTaskProgressOutListener = listener
+    }
+
+    fun activeTaskCompletedListener(listener: ActiveTaskCompletedListener?) {
+        activeTaskCompletedOutListener = listener
     }
 
     fun activeTask(task: JadxTask?) {
@@ -66,6 +78,10 @@ object JadxTaskManager {
 
     fun interface ActiveTaskProgressListener {
         fun onProgress(progress: Float)
+    }
+
+    fun interface ActiveTaskCompletedListener {
+        fun onCompleted(jadxTask: JadxTask)
     }
 
 }

@@ -35,9 +35,6 @@ kotlin {
         implementation(compose.desktop.macos_arm64)
 
 
-        // https://mvnrepository.com/artifact/org.json/json
-        implementation(libs.json)
-
         implementation(project(":sdkList"))
 
         implementation(project(":jadx"))

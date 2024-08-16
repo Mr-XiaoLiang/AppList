@@ -1,5 +1,6 @@
 package com.lollipop.applist.jadx
 
+import com.lollipop.applist.sdklist.AppSdkInfo
 import jadx.api.JadxArgs
 import jadx.api.JadxDecompiler
 import jadx.api.impl.NoOpCodeCache
@@ -22,7 +23,7 @@ class JadxTask(
 
     val name: String = file.name
 
-    var progressState = 0F
+    var progressState = -1F
         private set
 
     var isCompleted = false
@@ -32,6 +33,7 @@ class JadxTask(
         private set
 
     private var progressListener: ProgressListener? = null
+    private var onCompletedListener: OnCompletedListener? = null
 
     private val outDir: File by lazy {
         File(tempDir, md5()).apply {
@@ -44,12 +46,17 @@ class JadxTask(
         FileDelegate(outDir)
     }
 
+    val sdkInfo: AppSdkInfo
+        get() {
+            return fileDelegate.sdkInfo
+        }
+
     val sources: File
         get() {
             return fileDelegate.sources
         }
 
-    val manifest: File
+    val manifest: ManifestParse
         get() {
             return fileDelegate.manifest
         }
@@ -59,7 +66,7 @@ class JadxTask(
             return fileDelegate.assets
         }
 
-    val lib: File
+    val lib: SourceMenu
         get() {
             return fileDelegate.lib
         }
@@ -68,6 +75,14 @@ class JadxTask(
         get() {
             return fileDelegate.res
         }
+
+    fun reload() {
+        if (!isCompleted) {
+            return
+        }
+        fileDelegate.parseSdkInfo()
+        onCompletedListener?.onCompleted(this)
+    }
 
     private val saveProgressListener = JadxDecompiler.ProgressListener { done, total ->
         progressState = done * 1F / total
@@ -83,6 +98,10 @@ class JadxTask(
     fun setProgressListener(listener: ProgressListener?) {
         this.progressListener = listener
         listener?.onProgress(progressState)
+    }
+
+    fun setOnCompletedListener(listener: OnCompletedListener?) {
+        this.onCompletedListener = listener
     }
 
     fun load() {
@@ -104,6 +123,7 @@ class JadxTask(
             }
             isCompleted = true
             isLoading = false
+            reload()
         } catch (e: Exception) {
             isLoading = false
             e.printStackTrace()
@@ -112,6 +132,10 @@ class JadxTask(
 
     fun interface ProgressListener {
         fun onProgress(progress: Float)
+    }
+
+    fun interface OnCompletedListener {
+        fun onCompleted(task: JadxTask)
     }
 
 }

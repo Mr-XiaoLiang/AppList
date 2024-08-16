@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdklist
 
 import org.json.JSONArray
 import org.json.JSONObject
@@ -19,7 +19,7 @@ class AppSdkInfo {
 
     private val platformMap = HashMap<String, Platform>()
 
-    private val otherPlatform = Platform(com.lollipop.applist.sdklist.SdkKeyword.OTHER)
+    private val otherPlatform = Platform(SdkKeyword.OTHER)
 
     private var selfPlatform: Platform? = null
 
@@ -35,7 +35,7 @@ class AppSdkInfo {
         selfPlatform = if (packageName.isEmpty()) {
             null
         } else {
-            Platform(com.lollipop.applist.sdklist.SdkKeyword.Sdk("Self", listOf(packageName)))
+            Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
         }
     }
 
@@ -50,7 +50,7 @@ class AppSdkInfo {
                 isMatchSelf = true
             }
         }
-        val ads = com.lollipop.applist.sdklist.SdkKeyword.match(value)
+        val ads = SdkKeyword.match(value)
         if (ads.isEmpty() && !isMatchSelf) {
             otherPlatform.add(type, value)
         } else {
@@ -72,10 +72,12 @@ class AppSdkInfo {
         val mutableList = platformMap.values.toMutableList()
         selfPlatform?.let {
             if (it.list.isNotEmpty()) {
+                it.sort()
                 mutableList.add(it)
             }
         }
         if (otherPlatform.list.isNotEmpty()) {
+            otherPlatform.sort()
             mutableList.add(otherPlatform)
         }
         return mutableList
@@ -118,13 +120,19 @@ class AppSdkInfo {
     }
 
     class Platform(
-        val sdk: com.lollipop.applist.sdklist.SdkKeyword.Sdk
+        val sdk: SdkKeyword.Sdk
     ) {
         private val itemList = ArrayList<Item>()
+        private val sourceList = ArrayList<String>()
 
         val list: List<Item>
             get() {
                 return itemList
+            }
+
+        val source: List<String>
+            get() {
+                return sourceList
             }
 
         fun clear() {
@@ -132,7 +140,15 @@ class AppSdkInfo {
         }
 
         fun add(type: Type, value: String) {
-            itemList.add(Item(type, value))
+            if (type == Type.SourceCode) {
+                sourceList.add(value)
+            } else {
+                itemList.add(Item(type, value))
+            }
+        }
+
+        fun sort() {
+            itemList.sortBy { it.type.ordinal }
         }
     }
 
@@ -143,7 +159,8 @@ class AppSdkInfo {
         Receiver("Receiver", 0xFF00B57C.toInt()),
         MetaData("MetaData", 0xFF0076B5.toInt()),
         Permission("Permission", 0xFF9400B5.toInt()),
-        Native("Native", 0xFF00DEB6.toInt())
+        Native("Native", 0xFF00DEB6.toInt()),
+        SourceCode("SourceCode", 0xFF8DD338.toInt())
     }
 
     class Item(

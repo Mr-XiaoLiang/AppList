@@ -7,3 +7,10 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
+
+kotlin {
+    dependencies {
+        // https://mvnrepository.com/artifact/org.json/json
+        implementation(libs.json)
+    }
+}

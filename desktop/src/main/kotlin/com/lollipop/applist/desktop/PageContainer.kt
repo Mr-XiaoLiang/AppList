@@ -50,6 +50,7 @@ fun PageContainer(
     val currentFile by remember { JadxComposeState.currentTask }
     var dropdownExpanded by remember { mutableStateOf(false) }
     val currentProgress by remember { JadxComposeState.activeTaskProgress }
+    val currentTaskCompleted by remember { JadxComposeState.currentTaskCompleted }
 
     val closeFileCallback = { task: JadxTask ->
         callClose(task)
@@ -71,32 +72,25 @@ fun PageContainer(
             }
         }
         if (currentFile != null) {
-            Card(
+            Row(
                 modifier = Modifier.fillMaxWidth().height(36.dp).onClick {
                     dropdownExpanded = !dropdownExpanded
-                },
-                elevation = 12.dp,
-                backgroundColor = Color.White,
-                shape = MaterialTheme.shapes.large
+                }.padding(horizontal = 6.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = currentFile?.name ?: "",
-                        modifier = Modifier.wrapContentSize().weight(1F)
-                            .padding(end = 4.dp),
-                        color = MaterialTheme.colors.onSurface
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.ArrowDropDown,
-                        contentDescription = "切换",
-                        tint = MaterialTheme.colors.onSurface,
-                        modifier = Modifier.width(16.dp).height(16.dp)
-                    )
-                }
+                Text(
+                    text = currentFile?.name ?: "",
+                    modifier = Modifier.wrapContentSize().weight(1F)
+                        .padding(end = 4.dp),
+                    color = MaterialTheme.colors.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "切换",
+                    tint = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.width(16.dp).height(16.dp)
+                )
             }
         }
         Box(
@@ -104,13 +98,22 @@ fun PageContainer(
             contentAlignment = Alignment.TopCenter
         ) {
             ContentPage(currentFile)
-            LinearProgressIndicator(
-                progress = currentProgress,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            if (!currentTaskCompleted) {
+                if (currentProgress >= 0) {
+                    LinearProgressIndicator(
+                        progress = currentProgress,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                } else {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
             DropdownPanel(
-                fileList,
-                dropdownExpanded,
+                fileList = fileList,
+                expanded = dropdownExpanded,
+                currentName = currentFile?.name ?: "",
                 onDismissRequest = { dropdownExpanded = false },
                 callClose = closeFileCallback
             ) { file ->
@@ -126,6 +129,7 @@ fun PageContainer(
 private fun DropdownPanel(
     fileList: List<JadxTask>,
     expanded: Boolean,
+    currentName: String,
     onDismissRequest: () -> Unit,
     callClose: (JadxTask) -> Unit,
     onClick: (JadxTask) -> Unit
@@ -163,10 +167,15 @@ private fun DropdownPanel(
                                     callClose(file)
                                 }
                             )
+                            val fileName = file.name
                             Text(
-                                text = file.name,
+                                text = fileName,
                                 modifier = Modifier.fillMaxWidth().padding(start = 4.dp),
-                                color = MaterialTheme.colors.onSurface
+                                color = if (currentName == fileName) {
+                                    MaterialTheme.colors.primary
+                                } else {
+                                    MaterialTheme.colors.onSurface
+                                }
                             )
                         }
                     }

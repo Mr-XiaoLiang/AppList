@@ -19,6 +19,7 @@ import androidx.viewbinding.ViewBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoFooterBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoPartBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoTitleBinding
+import com.lollipop.applist.sdklist.AppSdkInfo
 
 object AppSdkDisplayHelper {
 
