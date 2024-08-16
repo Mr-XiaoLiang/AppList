@@ -22,8 +22,9 @@ object JadxComposeState {
     val selectedPlatform = mutableStateOf<SdkKeyword.Sdk?>(null)
     val platformSourceCodeList = mutableStateListOf<String>()
     val sdkTypeFilterList = mutableStateMapOf<AppSdkInfo.Type, Boolean>()
-
+    val expandSourcePage = mutableStateOf(false)
     val currentTaskCompleted = mutableStateOf(true)
+
 
     fun init() {
         if (isInitialized) {
@@ -50,6 +51,7 @@ object JadxComposeState {
         platform?.source?.let {
             platformSourceCodeList.addAll(it)
         }
+        expandSourcePage.value = platformSourceCodeList.isNotEmpty()
     }
 
     fun currentTask(task: JadxTask?) {

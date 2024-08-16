@@ -7,7 +7,7 @@ data object SdkKeyword {
         listOf()
     )
 
-    private val sdkLists = listOf(
+    val sdkLists = listOf(
         Sdk(
             "Tencent",
             listOf("tencent", "gdt", "com.qq.", "yaq.gdtadv")
@@ -238,6 +238,10 @@ data object SdkKeyword {
         val label: String,
         val keywords: List<String>
     ) {
+
+        val keywordsString: String by lazy {
+            keywords.joinToString(", ")
+        }
 
         fun isMatch(text: String): Boolean {
             return keywords.any {
