@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
@@ -136,16 +137,18 @@ fun ContentPage(task: JadxTask?) {
                                     }
                                 }
                         ) {
-                            Text(
-                                text = platform.sdk.label,
-                                color = if (isSelectedPlatform) {
-                                    MaterialTheme.colors.primary
-                                } else {
-                                    Color(0xFF333333.toInt())
-                                },
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(vertical = 6.dp)
-                            )
+                            SelectionContainer {
+                                Text(
+                                    text = platform.sdk.label,
+                                    color = if (isSelectedPlatform) {
+                                        MaterialTheme.colors.primary
+                                    } else {
+                                        Color(0xFF333333.toInt())
+                                    },
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                            }
                             platform.list.forEach { item ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -163,11 +166,13 @@ fun ContentPage(task: JadxTask?) {
                                                 shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 4.dp, vertical = 2.dp)
                                     )
-                                    Text(
-                                        text = item.value,
-                                        color = Color(0xFF666666.toInt()),
-                                        fontSize = 14.sp
-                                    )
+                                    SelectionContainer {
+                                        Text(
+                                            text = item.value,
+                                            color = Color(0xFF666666.toInt()),
+                                            fontSize = 14.sp
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -187,12 +192,14 @@ fun ContentPage(task: JadxTask?) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 itemsIndexed(sourceCodeList) { index, clazz ->
-                    Text(
-                        text = clazz,
-                        color = Color(0xFF666666.toInt()),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = clazz,
+                            color = Color(0xFF666666.toInt()),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
         }
