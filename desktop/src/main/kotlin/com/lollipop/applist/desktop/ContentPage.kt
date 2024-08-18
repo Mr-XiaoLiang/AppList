@@ -45,7 +45,6 @@ fun ContentPage(task: JadxTask?) {
     val sourceCodeList = remember { JadxComposeState.platformSourceCodeList }
     val sdkTypeFilterList = remember { JadxComposeState.sdkTypeFilterList }
     val selectedPlatform by remember { JadxComposeState.selectedPlatform }
-    val expandSourcePage by remember { JadxComposeState.expandSourcePage }
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp)
     ) {
