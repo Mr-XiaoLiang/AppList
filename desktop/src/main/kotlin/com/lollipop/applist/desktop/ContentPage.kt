@@ -1,5 +1,6 @@
 package com.lollipop.applist.desktop
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,17 +14,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,8 +44,9 @@ fun ContentPage(task: JadxTask?) {
     val sdkInfoList = remember { JadxComposeState.sdkInfoList }
     val sourceCodeList = remember { JadxComposeState.platformSourceCodeList }
     val sdkTypeFilterList = remember { JadxComposeState.sdkTypeFilterList }
+    val selectedPlatform by remember { JadxComposeState.selectedPlatform }
     Row(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp)
     ) {
         Column(
             modifier = Modifier.width(200.dp).wrapContentHeight()
@@ -53,7 +57,7 @@ fun ContentPage(task: JadxTask?) {
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LazyColumn(
+            LazyColumnWithScrollBar(
                 modifier = Modifier.fillMaxWidth().weight(1F)
             ) {
                 items(AppSdkInfo.Type.entries) { type ->
@@ -94,7 +98,7 @@ fun ContentPage(task: JadxTask?) {
             }
         }
         Box(
-            modifier = Modifier.fillMaxWidth(
+            modifier = Modifier.animateContentSize().fillMaxWidth(
                 if (sourceCodeList.isNotEmpty()) {
                     0.5F
                 } else {
@@ -107,11 +111,12 @@ fun ContentPage(task: JadxTask?) {
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {
-            LazyColumn(
+            LazyColumnWithScrollBar(
                 modifier = Modifier.fillMaxSize()
             ) {
                 itemsIndexed(sdkInfoList) { index, platform ->
                     if (platform.list.isNotEmpty() || platform.source.isNotEmpty()) {
+                        val isSelectedPlatform = platform.sdk == selectedPlatform
                         Column(
                             modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                 .padding(horizontal = 4.dp, vertical = 2.dp)
@@ -124,15 +129,25 @@ fun ContentPage(task: JadxTask?) {
                                     shape = RoundedCornerShape(6.dp)
                                 ).padding(4.dp)
                                 .onClick {
-                                    JadxComposeState.selectPlatform(platform)
+                                    if (isSelectedPlatform) {
+                                        JadxComposeState.selectPlatform(null)
+                                    } else {
+                                        JadxComposeState.selectPlatform(platform)
+                                    }
                                 }
                         ) {
-                            Text(
-                                text = platform.sdk.label,
-                                color = Color(0xFF333333.toInt()),
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(vertical = 6.dp)
-                            )
+                            SelectionContainer {
+                                Text(
+                                    text = platform.sdk.label,
+                                    color = if (isSelectedPlatform) {
+                                        MaterialTheme.colors.primary
+                                    } else {
+                                        Color(0xFF333333.toInt())
+                                    },
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                            }
                             platform.list.forEach { item ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -147,14 +162,16 @@ fun ContentPage(task: JadxTask?) {
                                         )
                                             .background(
                                                 color = Color(item.type.color),
-                                                shape = RoundedCornerShape(2.dp)
+                                                shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 4.dp, vertical = 2.dp)
                                     )
-                                    Text(
-                                        text = item.value,
-                                        color = Color(0xFF666666.toInt()),
-                                        fontSize = 14.sp
-                                    )
+                                    SelectionContainer {
+                                        Text(
+                                            text = item.value,
+                                            color = Color(0xFF666666.toInt()),
+                                            fontSize = 14.sp
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -162,19 +179,19 @@ fun ContentPage(task: JadxTask?) {
                 }
             }
         }
-        if (sourceCodeList.isNotEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                    .padding(end = 4.dp, top = 4.dp, bottom = 4.dp, start = 2.dp)
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
-                    )
+        Box(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                .padding(end = 4.dp, top = 4.dp, bottom = 4.dp, start = 2.dp)
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        ) {
+            LazyColumnWithScrollBar(
+                modifier = Modifier.fillMaxSize()
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    itemsIndexed(sourceCodeList) { index, clazz ->
+                itemsIndexed(sourceCodeList) { index, clazz ->
+                    SelectionContainer {
                         Text(
                             text = clazz,
                             color = Color(0xFF666666.toInt()),

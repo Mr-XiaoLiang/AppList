@@ -13,7 +13,7 @@ object SdkKeywordListDialog {
     fun show(activity: ComponentActivity) {
         val displayList = mutableListOf<SdkInfoDisplayInfo>()
         com.lollipop.applist.sdklist.SdkKeyword.forEach {
-            displayList.add(SdkInfoDisplayInfo(it.label, it.keywords.joinToString(", ")))
+            displayList.add(SdkInfoDisplayInfo(it.label, it.keywordsString))
         }
         BottomSheetDialog(activity).apply {
             setContentView(R.layout.dialog_sdk_keywords)

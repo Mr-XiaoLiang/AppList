@@ -39,7 +39,9 @@ class SourceMenu(
             } else if (first.isFile) {
                 val path = first.absolutePath
                 if (path.startsWith(baseName)) {
-                    val relativePath = path.substring(baseName.length + 1).replace("/", ".")
+                    val relativePath = path.substring(baseName.length + 1)
+                        .replace("/", ".")
+                        .replace("\\", ".")
                     listImpl.add(relativePath)
                 }
             }

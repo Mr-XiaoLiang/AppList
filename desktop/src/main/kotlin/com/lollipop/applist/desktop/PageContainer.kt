@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.onClick
 import androidx.compose.material.Card
@@ -28,6 +26,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lollipop.applist.jadx.JadxTask
-import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -49,6 +47,7 @@ fun PageContainer(
 
     val currentFile by remember { JadxComposeState.currentTask }
     var dropdownExpanded by remember { mutableStateOf(false) }
+    var hintExpanded by remember { mutableStateOf(false) }
     val currentProgress by remember { JadxComposeState.activeTaskProgress }
     val currentTaskCompleted by remember { JadxComposeState.currentTaskCompleted }
 
@@ -79,6 +78,14 @@ fun PageContainer(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = "帮助",
+                    tint = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.width(36.dp).height(36.dp).onClick {
+                        hintExpanded = !hintExpanded
+                    }.padding(6.dp)
+                )
                 Text(
                     text = currentFile?.name ?: "",
                     modifier = Modifier.wrapContentSize().weight(1F)
@@ -89,7 +96,7 @@ fun PageContainer(
                     imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = "切换",
                     tint = MaterialTheme.colors.onSurface,
-                    modifier = Modifier.width(16.dp).height(16.dp)
+                    modifier = Modifier.width(24.dp).height(24.dp)
                 )
             }
         }
@@ -120,6 +127,7 @@ fun PageContainer(
                 JadxComposeState.currentTask(file)
                 dropdownExpanded = false
             }
+            SdkListHintPage(hintExpanded) { hintExpanded = false }
         }
     }
 }
@@ -148,7 +156,9 @@ private fun DropdownPanel(
                 backgroundColor = Color.White,
                 shape = MaterialTheme.shapes.large
             ) {
-                LazyColumn {
+                LazyColumnWithScrollBar(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(fileList) { file ->
                         Row(
                             modifier = Modifier.fillMaxWidth()
@@ -182,45 +192,6 @@ private fun DropdownPanel(
                 }
             }
             Box(modifier = Modifier.fillMaxSize().onClick { onDismissRequest() })
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun TabItem(
-    file: File,
-    onClick: () -> Unit,
-    callClose: () -> Unit
-) {
-    Box(
-        modifier = Modifier.wrapContentWidth().fillMaxHeight()
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    ) {
-        Card(
-            modifier = Modifier.wrapContentWidth().fillMaxHeight().onClick {
-                onClick()
-            },
-            backgroundColor = Color.White,
-        ) {
-            Row(
-                modifier = Modifier.wrapContentSize().padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = file.name,
-                    modifier = Modifier.wrapContentSize().padding(end = 4.dp),
-                    color = MaterialTheme.colors.onSurface
-                )
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "关闭标签",
-                    tint = MaterialTheme.colors.onSurface,
-                    modifier = Modifier.width(16.dp).height(16.dp).onClick {
-                        callClose()
-                    }
-                )
-            }
         }
     }
 }

@@ -22,8 +22,8 @@ object JadxComposeState {
     val selectedPlatform = mutableStateOf<SdkKeyword.Sdk?>(null)
     val platformSourceCodeList = mutableStateListOf<String>()
     val sdkTypeFilterList = mutableStateMapOf<AppSdkInfo.Type, Boolean>()
-
     val currentTaskCompleted = mutableStateOf(true)
+
 
     fun init() {
         if (isInitialized) {
