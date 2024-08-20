@@ -8,7 +8,7 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
 
-class ManifestParse(private val file: File) {
+sealed class ManifestParse {
 
     companion object {
         const val ATTRIBUTE_ANDROID_NAME = "android:name"
@@ -16,13 +16,44 @@ class ManifestParse(private val file: File) {
         const val ATTRIBUTE_ANDROID_REQUIRED = "android:required"
     }
 
-    val manifestSrc by lazy {
-        file.readText()
+    abstract val manifestSrc: String
+
+    fun reload() {
+        pkgNameImpl = null
+        onReload()
     }
 
-    val pkgName: String by lazy {
-        parsePackageName()
+    protected abstract fun onReload()
+
+    class FromString(val valueProvider: () -> String) : ManifestParse() {
+        override var manifestSrc: String = ""
+
+        override fun onReload() {
+            manifestSrc = valueProvider()
+        }
+
     }
+
+    class FromFile(private val file: File) : ManifestParse() {
+        override var manifestSrc = ""
+
+        override fun onReload() {
+            manifestSrc = file.readText()
+        }
+    }
+
+    private var pkgNameImpl: String? = null
+
+    val pkgName: String
+        get() {
+            val impl = pkgNameImpl
+            if (impl == null) {
+                val newImpl = parsePackageName()
+                pkgNameImpl = newImpl
+                return newImpl
+            }
+            return impl
+        }
 
     private fun parsePackageName(): String {
         val dbf = DocumentBuilderFactory.newInstance()

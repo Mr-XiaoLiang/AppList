@@ -13,6 +13,7 @@ import androidx.compose.ui.window.application
 import com.lollipop.applist.desktop.DragBox
 import com.lollipop.applist.desktop.JadxComposeState
 import com.lollipop.applist.desktop.PageContainer
+import com.lollipop.applist.jadx.DecompilerMode
 import com.lollipop.applist.jadx.JadxTask
 import com.lollipop.applist.jadx.JadxTaskManager
 import java.io.File
@@ -25,14 +26,15 @@ fun AppListDesktop() {
     val fileList = remember { mutableStateListOf<JadxTask>() }
     DragBox(
         modifier = Modifier.fillMaxSize().background(color = Color(240, 240, 240, 255)),
-        showMask = fileList.isEmpty(),
+        showMask = false,
         onDropCallback = { data ->
             when (data) {
                 is DragData.FilesList -> {
                     val list = data.readFiles()
+                    val mode = JadxComposeState.getDecompilerModeEnum()
                     list.forEach { path ->
-                        log("DragData.FilesList：${path}")
-                        fileList.addAllFile(path)
+                        log("DragData.FilesList：${path}, mode: $mode")
+                        fileList.addAllFile(path, mode)
                     }
                 }
             }
@@ -48,7 +50,7 @@ private fun log(value: String) {
     println(value)
 }
 
-private fun MutableList<JadxTask>.addAllFile(path: String) {
+private fun MutableList<JadxTask>.addAllFile(path: String, mode: DecompilerMode) {
     val realPath = if (path.startsWith("file:")) {
         path.substring(5)
     } else {
@@ -60,7 +62,7 @@ private fun MutableList<JadxTask>.addAllFile(path: String) {
         return
     }
     if (file.isFile) {
-        add(createTask(file))
+        add(createTask(file, mode))
         log("添加文件：${file.path}")
         return
     }
@@ -78,22 +80,20 @@ private fun MutableList<JadxTask>.addAllFile(path: String) {
                 log("遍历目录：${f.path}")
             }
         } else if (first.isFile) {
-            add(createTask(first))
+            add(createTask(first, mode))
             log("添加文件：${file.path}")
         }
     }
 }
 
-private fun createTask(file: File): JadxTask {
-    return JadxTask(file).apply {
+private fun createTask(file: File, mode: DecompilerMode): JadxTask {
+    return JadxTask(file, mode).apply {
         JadxTaskManager.addTask(this)
-
     }
 }
 
 fun main() = application {
     JadxComposeState.init()
-    // 先初始化语言
     Window(
         onCloseRequest = ::exitApplication,
         title = "App List",

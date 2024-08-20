@@ -67,6 +67,7 @@ fun DragBox(
 fun DragMask(
     modifier: Modifier = Modifier.fillMaxSize()
         .background(Color(255, 255, 255, 160)),
+    color: Color = MaterialTheme.colors.primary
 ) {
     Column(
         modifier = modifier,
@@ -77,9 +78,9 @@ fun DragMask(
             imageVector = Icons.Filled.Download,
             contentDescription = "拖拽上传",
             modifier = Modifier.width(56.dp).height(56.dp),
-            tint = MaterialTheme.colors.primary
+            tint = color
         )
-        Text(text = "拖拽上传", fontSize = 18.sp, color = MaterialTheme.colors.primary)
+        Text(text = "拖拽上传", fontSize = 18.sp, color = color)
     }
 }
 
