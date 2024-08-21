@@ -1,11 +1,12 @@
 package com.lollipop.applist.jadx
 
 import com.lollipop.applist.sdklist.AppSdkInfo
+import jadx.api.JadxDecompiler
 import java.io.File
 
 class FileDelegate(
     val root: File
-) {
+) : JadxInfoDelegate {
 
     private val resources by lazy {
         File(root, "resources")
@@ -15,28 +16,36 @@ class FileDelegate(
         File(root, "sources")
     }
 
-    val sdkInfo by lazy {
+    override val sdkInfo by lazy {
         AppSdkInfo()
     }
 
-    fun parseSdkInfo() {
+    override fun parseSdkInfo() {
         sdkInfo.clear()
+        manifest.reload()
+        sourceJava.reload()
+        lib.reload()
+
         sdkInfo.setSelfPackageName(manifest.pkgName)
         manifest.parse(sdkInfo)
         sourceJava.parse(sdkInfo, AppSdkInfo.Type.SourceCode)
         lib.parse(sdkInfo, AppSdkInfo.Type.Native)
     }
 
+    override fun reset(jadx: JadxDecompiler, progressListener: JadxDecompiler.ProgressListener) {
+        jadx.save(100, progressListener)
+    }
+
     val manifestFile by lazy {
         File(resources, "AndroidManifest.xml")
     }
 
-    val manifest by lazy {
-        ManifestParse(manifestFile)
+    override val manifest: ManifestParse by lazy {
+        ManifestParse.FromFile(manifestFile)
     }
 
     val sourceJava by lazy {
-        SourceMenu(sources)
+        SourceMenu.FromFile(sources)
     }
 
     val assets by lazy {
@@ -44,7 +53,7 @@ class FileDelegate(
     }
 
     val lib by lazy {
-        SourceMenu(File(resources, "lib"))
+        SourceMenu.FromFile(File(resources, "lib"))
     }
 
     val res by lazy {

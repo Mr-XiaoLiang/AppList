@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import com.lollipop.applist.jadx.DecompilerMode
 import com.lollipop.applist.jadx.JadxTask
 import com.lollipop.applist.jadx.JadxTaskManager
 import com.lollipop.applist.sdklist.AppSdkInfo
@@ -23,7 +24,15 @@ object JadxComposeState {
     val platformSourceCodeList = mutableStateListOf<String>()
     val sdkTypeFilterList = mutableStateMapOf<AppSdkInfo.Type, Boolean>()
     val currentTaskCompleted = mutableStateOf(true)
+    var decompilerMode = mutableStateOf(true)
 
+    fun getDecompilerModeEnum(): DecompilerMode {
+        return if (decompilerMode.value) {
+            DecompilerMode.Runtime
+        } else {
+            DecompilerMode.File
+        }
+    }
 
     fun init() {
         if (isInitialized) {

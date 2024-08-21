@@ -11,6 +11,7 @@ import java.security.MessageDigest
 
 class JadxTask(
     val file: File,
+    val decompilerMode: DecompilerMode
 ) {
 
     companion object {
@@ -42,45 +43,27 @@ class JadxTask(
         }
     }
 
-    private val fileDelegate by lazy {
-        FileDelegate(outDir)
+    private val infoDelegate: JadxInfoDelegate by lazy {
+        createDecompiler()
     }
 
     val sdkInfo: AppSdkInfo
         get() {
-            return fileDelegate.sdkInfo
+            return infoDelegate.sdkInfo
         }
 
-    val sources: File
-        get() {
-            return fileDelegate.sources
+    private fun createDecompiler(): JadxInfoDelegate {
+        return when (decompilerMode) {
+            DecompilerMode.File -> FileDelegate(outDir)
+            DecompilerMode.Runtime -> RuntimeDelegate()
         }
-
-    val manifest: ManifestParse
-        get() {
-            return fileDelegate.manifest
-        }
-
-    val assets: File
-        get() {
-            return fileDelegate.assets
-        }
-
-    val lib: SourceMenu
-        get() {
-            return fileDelegate.lib
-        }
-
-    val res: File
-        get() {
-            return fileDelegate.res
-        }
+    }
 
     fun reload() {
         if (!isCompleted) {
             return
         }
-        fileDelegate.parseSdkInfo()
+        infoDelegate.parseSdkInfo()
         onCompletedListener?.onCompleted(this)
     }
 
@@ -119,7 +102,7 @@ class JadxTask(
         try {
             JadxDecompiler(jadxArgs).use { jadx ->
                 jadx.load()
-                jadx.save(16, saveProgressListener)
+                infoDelegate.reset(jadx, saveProgressListener)
             }
             isCompleted = true
             isLoading = false

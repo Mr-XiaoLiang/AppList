@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.onClick
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -50,6 +52,7 @@ fun PageContainer(
     var hintExpanded by remember { mutableStateOf(false) }
     val currentProgress by remember { JadxComposeState.activeTaskProgress }
     val currentTaskCompleted by remember { JadxComposeState.currentTaskCompleted }
+    var decompilerMode by remember { JadxComposeState.decompilerMode }
 
     val closeFileCallback = { task: JadxTask ->
         callClose(task)
@@ -70,52 +73,71 @@ fun PageContainer(
                 JadxComposeState.currentTask(fileList[0])
             }
         }
-        if (currentFile != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(36.dp).onClick {
-                    dropdownExpanded = !dropdownExpanded
-                }.padding(horizontal = 6.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Info,
-                    contentDescription = "帮助",
-                    tint = MaterialTheme.colors.onSurface,
-                    modifier = Modifier.width(36.dp).height(36.dp).onClick {
-                        hintExpanded = !hintExpanded
-                    }.padding(6.dp)
-                )
-                Text(
-                    text = currentFile?.name ?: "",
-                    modifier = Modifier.wrapContentSize().weight(1F)
-                        .padding(end = 4.dp),
-                    color = MaterialTheme.colors.onSurface
-                )
-                Icon(
-                    imageVector = Icons.Filled.ArrowDropDown,
-                    contentDescription = "切换",
-                    tint = MaterialTheme.colors.onSurface,
-                    modifier = Modifier.width(24.dp).height(24.dp)
-                )
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth().height(36.dp).onClick {
+                dropdownExpanded = !dropdownExpanded
+            }.padding(horizontal = 6.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = "帮助",
+                tint = MaterialTheme.colors.onSurface,
+                modifier = Modifier.width(36.dp).height(36.dp).onClick {
+                    hintExpanded = !hintExpanded
+                }.padding(6.dp)
+            )
+            Text(
+                text = currentFile?.name ?: "",
+                modifier = Modifier.wrapContentSize().weight(1F)
+                    .padding(end = 4.dp),
+                color = MaterialTheme.colors.onSurface
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "切换",
+                tint = MaterialTheme.colors.onSurface,
+                modifier = Modifier.width(24.dp).height(24.dp)
+            )
+            Switch(
+                checked = decompilerMode,
+                onCheckedChange = {
+                    decompilerMode = it
+                },
+                modifier = Modifier.wrapContentWidth().height(36.dp)
+            )
+            Text(
+                text = if (decompilerMode) {
+                    "内存模式"
+                } else {
+                    "导出模式"
+                },
+                modifier = Modifier.wrapContentSize().padding(end = 4.dp),
+                color = MaterialTheme.colors.onSurface
+            )
         }
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            ContentPage(currentFile)
-            if (!currentTaskCompleted) {
-                if (currentProgress >= 0) {
-                    LinearProgressIndicator(
-                        progress = currentProgress,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                } else {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+            if (fileList.isNotEmpty()) {
+                if (!currentTaskCompleted) {
+                    if (currentProgress >= 0) {
+                        LinearProgressIndicator(
+                            progress = currentProgress,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
+                ContentPage(currentFile)
+            } else {
+                DragMask(color = Color(0, 0, 0, 80))
             }
             DropdownPanel(
                 fileList = fileList,
