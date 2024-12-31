@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.content.ClipData
 import android.content.ClipDescription
@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.lollipop.applist.data.AppInfo
 import com.lollipop.applist.databinding.ItemAppBinding
+import com.lollipop.applist.hook.AppPageHistoryActivity
 
 
 class AppAdapter(private val list: List<AppInfo>) :
@@ -76,7 +78,8 @@ object AppOptionHelper {
         COPY("复制包名"),
         SETTING("应用设置"),
         OPEN("打开应用"),
-        SDK("SDK列表")
+        SDK("SDK列表"),
+        PAGE_HISTORY("页面历史")
     }
 
     fun showOptionDialog(context: Context, labelName: String, pkgName: String) {
@@ -87,7 +90,7 @@ object AppOptionHelper {
         MaterialAlertDialogBuilder(context)
             .setTitle(labelName)
             .setItems(menuNameList) { dialog, which ->
-                doOption(context, pkgName, menuList[which])
+                doOption(context, pkgName, labelName, menuList[which])
                 dialog.dismiss()
             }
             .show()
@@ -101,10 +104,11 @@ object AppOptionHelper {
             OptionMenu.QUICK_ADD -> !QuickAppHelper.isQuickApp(pkgName)
             OptionMenu.QUICK_REMOVE -> QuickAppHelper.isQuickApp(pkgName)
             OptionMenu.SDK -> true
+            OptionMenu.PAGE_HISTORY -> true
         }
     }
 
-    private fun doOption(context: Context, pkgName: String, optionMenu: OptionMenu) {
+    private fun doOption(context: Context, pkgName: String, label: String, optionMenu: OptionMenu) {
         when (optionMenu) {
             OptionMenu.COPY -> copyPackage(context, pkgName)
             OptionMenu.SETTING -> openPackageSetting(context, pkgName)
@@ -112,7 +116,12 @@ object AppOptionHelper {
             OptionMenu.QUICK_ADD -> addQuickApp(context, pkgName)
             OptionMenu.QUICK_REMOVE -> removeQuickApp(context, pkgName)
             OptionMenu.SDK -> openSdkInfo(context, pkgName)
+            OptionMenu.PAGE_HISTORY -> openPageHistory(context, pkgName, label)
         }
+    }
+
+    private fun openPageHistory(context: Context, packageName: String, label: String) {
+        AppPageHistoryActivity.start(context, packageName, label)
     }
 
     private fun addQuickApp(context: Context, packageName: String) {

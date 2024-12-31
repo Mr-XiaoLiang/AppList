@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.data
 
 import android.content.Context
 import android.content.Intent

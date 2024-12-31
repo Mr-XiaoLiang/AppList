@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.app.Activity
 import android.content.Context
@@ -17,6 +17,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.lollipop.applist.data.InfoSaveHelper
+import com.lollipop.applist.R
 import com.lollipop.applist.databinding.ActivitySdkInfoBinding
 import com.lollipop.applist.sdklist.AppSdkInfo
 import java.io.File

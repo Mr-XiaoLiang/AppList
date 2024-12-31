@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.annotation.SuppressLint
 import android.graphics.Outline
@@ -24,6 +24,8 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.sidesheet.SideSheetCallback
+import com.lollipop.applist.R
+import com.lollipop.applist.data.AppInfo
 import com.lollipop.applist.databinding.ItemDialogLauncherBinding
 import com.lollipop.applist.databinding.ItemSpaceBinding
 import kotlin.math.max

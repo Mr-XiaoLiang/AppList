@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.data
 
 import androidx.annotation.Keep
 import androidx.core.content.FileProvider

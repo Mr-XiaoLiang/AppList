@@ -35,6 +35,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="@color/summaryOnBackground"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/appIconView"
         app:layout_constraintEnd_toEndOf="@id/labelView"
         app:layout_constraintStart_toStartOf="@id/labelView"

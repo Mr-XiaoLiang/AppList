@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.data
 
 import android.graphics.drawable.Drawable
 

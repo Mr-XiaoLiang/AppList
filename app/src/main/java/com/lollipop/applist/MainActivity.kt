@@ -27,7 +27,15 @@ import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.lollipop.applist.data.AppInfo
 import com.lollipop.applist.databinding.ActivityMainBinding
+import com.lollipop.applist.hook.HookSettingActivity
+import com.lollipop.applist.sdk.AppAdapter
+import com.lollipop.applist.sdk.AppOptionHelper
+import com.lollipop.applist.sdk.AppSdkInfoActivity
+import com.lollipop.applist.sdk.LauncherContentHelper
+import com.lollipop.applist.sdk.QuickAppAdapter
+import com.lollipop.applist.sdk.QuickAppHelper
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListener {
@@ -315,6 +323,10 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
                 filterSystemApp(false)
                 loadAppInfo()
             }
+
+            OptionMenu.HOOK_PAGE -> {
+                startActivity(Intent(this, HookSettingActivity::class.java))
+            }
         }
     }
 
@@ -332,6 +344,7 @@ class MainActivity : AppCompatActivity(), QuickAppHelper.OnQuickAppChangeListene
         LOAD_APK("解析APK"),
         FILTER_SYSTEM_APP("过滤系统应用"),
         PASS_SYSTEM_APP("保留系统应用"),
+        HOOK_PAGE("Hook"),
     }
 
     private fun chooserFile() {

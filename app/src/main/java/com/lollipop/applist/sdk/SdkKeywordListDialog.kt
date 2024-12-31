@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.lollipop.applist.R
 import com.lollipop.applist.databinding.ItemDialogSdkKeywordsBinding
 
 object SdkKeywordListDialog {

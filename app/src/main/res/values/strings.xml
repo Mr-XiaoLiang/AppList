@@ -4,4 +4,13 @@
     <string name="hint">提示</string>
     <string name="save">保存</string>
     <string name="save_success">保存完成 %1$s</string>
+    <string name="accessibility_service_description">此服务用于获取其他应用的UI信息</string>
+    <string name="label_hook_service_settings">Hook服务设置</string>
+    <string name="label_switch_accessibility">无障碍服务权限</string>
+    <string name="label_switch_usage">使用情况访问权限</string>
+    <string name="title_hook_notification_ongoing">Hook服务正在运行</string>
+    <string name="summary_hook_notification_ongoing">记录模式: %1$s</string>
+    <string name="label_switch_only_change">仅在发生变更时记录</string>
+    <string name="label_switch_notification">通知权限</string>
+    <string name="label_app_page_history">应用页面历史</string>
 </resources>

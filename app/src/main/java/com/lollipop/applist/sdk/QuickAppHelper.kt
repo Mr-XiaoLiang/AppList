@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.content.Context
 import android.os.Handler

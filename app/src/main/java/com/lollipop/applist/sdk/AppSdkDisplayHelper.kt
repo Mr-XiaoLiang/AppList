@@ -1,4 +1,4 @@
-package com.lollipop.applist
+package com.lollipop.applist.sdk
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import com.lollipop.applist.R
 import com.lollipop.applist.databinding.ItemAppAdkInfoFooterBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoPartBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoTitleBinding
