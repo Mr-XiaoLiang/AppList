@@ -2,6 +2,7 @@ package com.lollipop.applist.data
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Handler
@@ -61,6 +62,18 @@ sealed class AppInfoDatabase {
                 }
             }
         }
+
+        fun queryAll(
+            appPkg: String,
+            callback: (List<AppActivityInfo>) -> Unit
+        ) {
+            executor.submit {
+                val result = dbDelegate?.queryAll(appPkg) ?: emptyList()
+                uiThread.post {
+                    callback(result)
+                }
+            }
+        }
     }
 
     protected class DatabaseDelegate(
@@ -91,6 +104,15 @@ sealed class AppInfoDatabase {
             }
         }
 
+        fun queryAll(appPkg: String): List<AppActivityInfo> {
+            try {
+                return ActivityInfo.queryAll(readableDatabase, appPkg)
+            } catch (e: Throwable) {
+                Log.e("AppInfoDatabase", "query", e)
+                return emptyList()
+            }
+        }
+
         object ActivityInfo {
 
             const val TABLE = "activity_info"
@@ -106,6 +128,17 @@ sealed class AppInfoDatabase {
                     "$COLUMNS_TIME INTEGER, " +
                     "$COLUMNS_FLAG INTEGER " +
                     " )"
+
+            private val allColumns by lazy {
+                arrayOf(
+                    COLUMNS_PKG_NAME,
+                    COLUMNS_ACTIVITY_NAME,
+                    COLUMNS_TIME,
+                    COLUMNS_FLAG
+                )
+            }
+
+            private const val ORDER_BY_DESC = "$COLUMNS_TIME DESC"
 
             fun insert(db: SQLiteDatabase, appActivityInfo: AppActivityInfo) {
                 val values = ContentValues().apply {
@@ -124,6 +157,22 @@ sealed class AppInfoDatabase {
                 db.insert(TABLE, "", values)
             }
 
+            private fun where(appPkg: String): String? {
+                return if (appPkg.isNotEmpty()) {
+                    "$COLUMNS_PKG_NAME = ?"
+                } else {
+                    null
+                }
+            }
+
+            private fun whereArgs(appPkg: String): Array<String>? {
+                return if (appPkg.isNotEmpty()) {
+                    arrayOf(appPkg)
+                } else {
+                    null
+                }
+            }
+
             fun query(
                 db: SQLiteDatabase,
                 appPkg: String,
@@ -131,31 +180,38 @@ sealed class AppInfoDatabase {
                 pageSize: Int = 40
             ): List<AppActivityInfo> {
                 val offset = pageIndex * pageSize
-                val columns = arrayOf(
-                    COLUMNS_PKG_NAME, COLUMNS_ACTIVITY_NAME, COLUMNS_TIME, COLUMNS_FLAG
-                )
-                val orderBy = "$COLUMNS_TIME DESC"
                 val limit = "$pageSize OFFSET $offset"
-                val where = if (appPkg.isNotEmpty()) {
-                    "$COLUMNS_PKG_NAME = ?"
-                } else {
-                    null
-                }
-                val whereArgs = if (appPkg.isNotEmpty()) {
-                    arrayOf(appPkg)
-                } else {
-                    null
-                }
                 val cursor = db.query(
                     TABLE,
-                    columns,
-                    where,
-                    whereArgs,
+                    allColumns,
+                    where(appPkg),
+                    whereArgs(appPkg),
                     null,
                     null,
-                    orderBy,
+                    ORDER_BY_DESC,
                     limit
                 )
+                return selectAppInfo(cursor)
+            }
+
+            fun queryAll(
+                db: SQLiteDatabase,
+                appPkg: String,
+            ): List<AppActivityInfo> {
+                val cursor = db.query(
+                    TABLE,
+                    allColumns,
+                    where(appPkg),
+                    whereArgs(appPkg),
+                    null,
+                    null,
+                    ORDER_BY_DESC,
+                    null
+                )
+                return selectAppInfo(cursor)
+            }
+
+            private fun selectAppInfo(cursor: Cursor): List<AppActivityInfo> {
                 val appActivityInfoList = mutableListOf<AppActivityInfo>()
                 while (cursor.moveToNext()) {
                     try {

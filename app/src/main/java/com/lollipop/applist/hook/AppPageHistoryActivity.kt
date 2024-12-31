@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,7 +15,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.lollipop.applist.R
 import com.lollipop.applist.data.AppInfoDatabase
+import com.lollipop.applist.data.InfoSaveHelper
 import com.lollipop.applist.databinding.ActivityAppPageHistoryBinding
 import com.lollipop.applist.databinding.ItemAppPageBinding
 import com.lollipop.applist.helper.LoadMoreHelper
@@ -67,6 +71,9 @@ class AppPageHistoryActivity : AppCompatActivity() {
         binding.actionBar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
+        binding.actionBar.setOnMenuItemClickListener {
+            onOptionsItemClick(it)
+        }
         binding.actionBar.title = appName
         appInfoDatabase.init(this)
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -86,6 +93,59 @@ class AppPageHistoryActivity : AppCompatActivity() {
     private fun loadMore() {
         pageIndex++
         loadInfo()
+    }
+
+    private fun onOptionsItemClick(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+            }
+
+            R.id.menu_save -> {
+                saveInfo()
+            }
+
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+        return true
+    }
+
+    private fun saveInfo() {
+        appInfoDatabase.queryAll(appPackage) { list ->
+            InfoSaveHelper.save(
+                context = this,
+                name = appName,
+                infoProvider = {
+                    contentToString(list)
+                },
+                onEnd = {
+                    Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
+                        .show()
+                }
+            )
+        }
+    }
+
+    /**
+     * 耗时操作，需要在子线程执行
+     */
+    private fun contentToString(list: List<AppInfoDatabase.AppActivityInfo>): String {
+        val builder = StringBuilder()
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.getDefault())
+        for (info in list) {
+            builder.append(sdf.format(info.timeDate)).append(" ")
+                .append(info.packageName)
+
+            if (info.flag) {
+                builder.append(" F ")
+            } else {
+                builder.append("   ")
+            }
+            builder.append(info.activityName).append("\n")
+        }
+        return builder.toString()
     }
 
     @SuppressLint("NotifyDataSetChanged")
