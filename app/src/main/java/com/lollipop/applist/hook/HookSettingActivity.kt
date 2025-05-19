@@ -33,14 +33,19 @@ class HookSettingActivity : AppCompatActivity() {
         initInsets()
         binding.accessibilityCard.setOnClickListener {
             // 打开无障碍设置页面
-            val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             startActivity(intent)
+        }
+        binding.actionBar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
         binding.usageCard.setOnClickListener {
             // 打开使用统计设置页面
-            val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             startActivity(intent)
         }
         binding.onlyChangeSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -49,8 +54,8 @@ class HookSettingActivity : AppCompatActivity() {
         binding.notificationCard.setOnClickListener {
             val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName);
-                    putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, applicationInfo.uid);
+                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+                    putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, applicationInfo.uid)
                 }
             } else {
                 Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {

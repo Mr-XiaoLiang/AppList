@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.lollipop.applist"
-    compileSdk = 34
+    compileSdk = 35
 
     buildFeatures {
         viewBinding = true
@@ -14,9 +14,9 @@ android {
     defaultConfig {
         applicationId = "com.lollipop.applist"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1_04_00
-        versionName = "1.4.0"
+        targetSdk = 35
+        versionCode = 1_04_01
+        versionName = "1.4.1"
     }
 
     buildTypes {
