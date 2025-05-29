@@ -21,7 +21,10 @@ object JadxComposeState {
     private var isInitialized = false
     val sdkInfoList = mutableStateListOf<AppSdkInfo.Platform>()
     val selectedPlatform = mutableStateOf<SdkKeyword.Sdk?>(null)
+    private val platformSourceCodeOriginal = mutableListOf<String>()
     val platformSourceCodeList = mutableStateListOf<String>()
+    var sourceCodeFilter = mutableStateOf("")
+        private set
     val sdkTypeFilterList = mutableStateMapOf<AppSdkInfo.Type, Boolean>()
     val currentTaskCompleted = mutableStateOf(true)
     var decompilerMode = mutableStateOf(true)
@@ -54,11 +57,40 @@ object JadxComposeState {
     }
 
     fun selectPlatform(platform: AppSdkInfo.Platform?) {
-        selectedPlatform.value = platform?.sdk
-        platformSourceCodeList.clear()
-        platform?.source?.let {
-            platformSourceCodeList.addAll(it)
+        if (platform == null) {
+            sourceCodeFilter.value = ""
+            selectedPlatform.value = null
+            platformSourceCodeOriginal.clear()
+        } else {
+            val oldPlatform = selectedPlatform.value
+            if (oldPlatform?.label != platform.sdk.label) {
+                // 如果切换平台，则清空过滤器
+                sourceCodeFilter.value = ""
+            }
+            selectedPlatform.value = platform.sdk
+            platformSourceCodeOriginal.clear()
+            platformSourceCodeOriginal.addAll(platform.source)
         }
+        onSourceCodeChanged()
+    }
+
+    fun changeSourceCodeFilter(keyword: String) {
+        sourceCodeFilter.value = keyword
+        onSourceCodeChanged()
+    }
+
+    private fun onSourceCodeChanged() {
+        platformSourceCodeList.clear()
+        platformSourceCodeList.addAll(filterSourceCodeList())
+    }
+
+    private fun filterSourceCodeList(): List<String> {
+        val source = platformSourceCodeOriginal
+        if (source.isEmpty()) {
+            return emptyList()
+        }
+        val keyword = sourceCodeFilter.value
+        return source.filter { it.contains(keyword, ignoreCase = true) }
     }
 
     fun currentTask(task: JadxTask?) {

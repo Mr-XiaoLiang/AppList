@@ -6,6 +6,7 @@ plugins {
     id("java-library")
     alias(libs.plugins.jetbrains.kotlin.jvm)
     alias(libs.plugins.jetbrains.compose)
+    alias(libs.plugins.compose.compiler)
 }
 
 java {
@@ -46,7 +47,7 @@ compose.desktop {
         mainClass = "AppListDesktopKt"
         jvmArgs += listOf("-Xmx2G")
         val appName = "AppList"
-        val versionName = "1.1.0"
+        val versionName = "1.2.0"
         val pkgName = "com.lollipop.applist.desktop"
         val sdf = SimpleDateFormat("yyyyMMdd-HHmmss")
         val buildVersion = "${versionName}-${sdf.format(Date(System.currentTimeMillis()))}"

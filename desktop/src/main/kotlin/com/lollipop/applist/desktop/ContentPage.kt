@@ -4,27 +4,16 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Button
-import androidx.compose.material.Checkbox
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,6 +34,7 @@ fun ContentPage(task: JadxTask?) {
     val sourceCodeList = remember { JadxComposeState.platformSourceCodeList }
     val sdkTypeFilterList = remember { JadxComposeState.sdkTypeFilterList }
     val selectedPlatform by remember { JadxComposeState.selectedPlatform }
+    val sourceCodeFilter by remember { JadxComposeState.sourceCodeFilter }
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp)
     ) {
@@ -99,7 +89,7 @@ fun ContentPage(task: JadxTask?) {
         }
         Box(
             modifier = Modifier.animateContentSize().fillMaxWidth(
-                if (sourceCodeList.isNotEmpty()) {
+                if (sourceCodeList.isNotEmpty() || sourceCodeFilter.isNotEmpty()) {
                     0.5F
                 } else {
                     1F
@@ -179,7 +169,7 @@ fun ContentPage(task: JadxTask?) {
                 }
             }
         }
-        Box(
+        Column(
             modifier = Modifier.fillMaxWidth().fillMaxHeight()
                 .padding(end = 4.dp, top = 4.dp, bottom = 4.dp, start = 2.dp)
                 .background(
@@ -187,6 +177,19 @@ fun ContentPage(task: JadxTask?) {
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Search, null)
+                },
+                label = {
+                    Text(text = "过滤")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                value = sourceCodeFilter,
+                onValueChange = {
+                    JadxComposeState.changeSourceCodeFilter(it)
+                }
+            )
             LazyColumnWithScrollBar(
                 modifier = Modifier.fillMaxSize()
             ) {

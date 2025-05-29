@@ -3,9 +3,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.DragData
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragData
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
@@ -17,7 +17,7 @@ import com.lollipop.applist.jadx.DecompilerMode
 import com.lollipop.applist.jadx.JadxTask
 import com.lollipop.applist.jadx.JadxTaskManager
 import java.io.File
-import java.util.LinkedList
+import java.util.*
 
 
 @OptIn(ExperimentalComposeUiApi::class)
