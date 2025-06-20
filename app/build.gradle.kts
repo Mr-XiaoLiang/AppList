@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation("androidx.browser:browser:1.8.0")
     implementation(project(":sdkList"))
     implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
 }

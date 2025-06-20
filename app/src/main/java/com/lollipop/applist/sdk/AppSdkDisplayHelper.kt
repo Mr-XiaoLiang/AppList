@@ -13,6 +13,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -20,6 +21,7 @@ import com.lollipop.applist.R
 import com.lollipop.applist.databinding.ItemAppAdkInfoFooterBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoPartBinding
 import com.lollipop.applist.databinding.ItemAppAdkInfoTitleBinding
+import com.lollipop.applist.helper.ChromeHelper
 import com.lollipop.applist.sdklist.AppSdkInfo
 
 object AppSdkDisplayHelper {
@@ -73,7 +75,7 @@ object AppSdkDisplayHelper {
 
     sealed class SdkInfo {
 
-        class Title(val sdk: com.lollipop.applist.sdklist.SdkKeyword.Sdk, val background: Int) : SdkInfo()
+        class Title(val sdk: com.lollipop.applist.sdklist.SDK, val background: Int) : SdkInfo()
 
         class Part(val item: AppSdkInfo.Item, val background: Int) : SdkInfo()
 
@@ -182,9 +184,43 @@ object AppSdkDisplayHelper {
 
         class GroupTitle(private val binding: ItemAppAdkInfoTitleBinding) : SdkInfoHolder(binding) {
 
+            private val typeBackgroundDrawable = TypeBackgroundDrawable()
+
+            private var websiteUrl = ""
+
+            init {
+                binding.typeView.background = typeBackgroundDrawable
+                typeBackgroundDrawable.radius = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    2F,
+                    itemView.resources.displayMetrics
+                )
+                typeBackgroundDrawable.strokeWidth = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    1F,
+                    itemView.resources.displayMetrics
+                )
+                binding.websiteButton.setOnClickListener {
+                    openWebsite()
+                }
+            }
+
             fun bind(info: SdkInfo.Title) {
-                binding.adLabelView.text = info.sdk.label
+                val sdk = info.sdk
+                binding.adLabelView.text = sdk.label
                 binding.root.setBackgroundColor(info.background)
+                typeBackgroundDrawable.color = sdk.color
+                binding.typeView.setTextColor(sdk.color)
+                binding.typeView.text = sdk.typeName
+                websiteUrl = info.sdk.website
+                binding.websiteButton.isVisible = websiteUrl.isNotEmpty()
+            }
+
+            private fun openWebsite() {
+                if (websiteUrl.isEmpty()) {
+                    return
+                }
+                ChromeHelper.open(itemView.context, websiteUrl)
             }
 
         }

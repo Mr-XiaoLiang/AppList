@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,18 +10,43 @@
     android:paddingBottom="8dp">
 
     <TextView
+        android:id="@+id/typeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="#3f00"
+        tools:text="@string/app_name" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/websiteButton"
+        android:layout_width="48dp"
+        android:layout_height="24dp"
+        android:paddingHorizontal="12dp"
+        android:src="@drawable/baseline_captive_portal_24px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/titleOnBackground" />
+
+    <TextView
         android:id="@+id/adLabelView"
-        android:layout_width="match_parent"
+        android:layout_width="0px"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:paddingHorizontal="4dp"
         android:paddingVertical="2dp"
         android:textColor="@color/titleOnBackground"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/websiteButton"
+        app:layout_constraintStart_toEndOf="@id/typeView"
         app:layout_constraintTop_toTopOf="parent"
         tools:background="#3f00"
         tools:text="@string/app_name" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

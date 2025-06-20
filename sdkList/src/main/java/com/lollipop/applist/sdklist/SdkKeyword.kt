@@ -13,6 +13,8 @@ object SdkKeyword {
             *AdsSDK.list,
             *TrackSDK.list,
             *ShareSDK.list,
+            *PaySDK.list,
+            *OtherSDK.list,
         )
     }
 

@@ -35,7 +35,7 @@ class AppSdkInfo {
         selfPlatform = if (packageName.isEmpty()) {
             null
         } else {
-            Platform(SdkKeyword.Sdk("Self", listOf(packageName)))
+            Platform(SDK.Other("Self", "", listOf(packageName)))
         }
     }
 
@@ -120,7 +120,7 @@ class AppSdkInfo {
     }
 
     class Platform(
-        val sdk: SdkKeyword.Sdk
+        val sdk: SDK
     ) {
         private val itemList = ArrayList<Item>()
         private val sourceList = ArrayList<String>()

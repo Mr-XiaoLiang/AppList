@@ -345,7 +345,20 @@ class LauncherContentHelper(
                     override fun getOutline(view: View, outline: Outline) {
                         outline.setRoundRect(0, 0, view.width, view.height, clipRoundRadius)
                     }
-                };
+                }
+                viewBinding.cardContentView.setBackgroundResource(R.color.launcherItemBackground)
+                viewBinding.appIconView.clipToOutline = true
+                viewBinding.appIconView.outlineProvider = object : ViewOutlineProvider() {
+                    val radius = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        12F,
+                        viewBinding.root.resources.displayMetrics
+                    )
+
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, radius)
+                    }
+                }
             }
 
             private fun onItemClick() {
@@ -357,17 +370,18 @@ class LauncherContentHelper(
             fun bind(info: AppInfo) {
                 viewBinding.labelView.text = info.name
                 val icon = info.launcherIcon
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && icon is AdaptiveIconDrawable) {
-                    viewBinding.appIconView.setImageDrawable(icon.foreground)
-                    viewBinding.appIconView.scaleX = 1.6F
-                    viewBinding.appIconView.scaleY = 1.6F
-                    viewBinding.cardContentView.background = icon.background
-                } else {
-                    viewBinding.appIconView.scaleX = 1F
-                    viewBinding.appIconView.scaleY = 1F
-                    viewBinding.appIconView.setImageDrawable(icon)
-                    viewBinding.cardContentView.setBackgroundResource(R.color.launcherItemBackground)
-                }
+                viewBinding.appIconView.setImageDrawable(icon)
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && icon is AdaptiveIconDrawable) {
+//                    viewBinding.appIconView.setImageDrawable(icon.foreground)
+//                    viewBinding.appIconView.scaleX = 1.6F
+//                    viewBinding.appIconView.scaleY = 1.6F
+//                    viewBinding.cardContentView.background = icon.background
+//                } else {
+//                    viewBinding.appIconView.scaleX = 1F
+//                    viewBinding.appIconView.scaleY = 1F
+//                    viewBinding.appIconView.setImageDrawable(icon)
+//                    viewBinding.cardContentView.setBackgroundResource(R.color.launcherItemBackground)
+//                }
             }
         }
 
