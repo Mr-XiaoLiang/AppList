@@ -12,6 +12,18 @@ sealed class SDK(
         keywords: List<String>
     ) : SDK(label, website, keywords)
 
+    class Track(
+        label: String,
+        website: String,
+        keywords: List<String>
+    ) : SDK(label, website, keywords)
+
+    class Share(
+        label: String,
+        website: String,
+        keywords: List<String>
+    ) : SDK(label, website, keywords)
+
     class Other(
         label: String,
         website: String,
