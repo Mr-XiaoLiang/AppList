@@ -13,12 +13,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lollipop.applist.R
-import com.lollipop.applist.data.InfoSaveHelper
 import com.lollipop.applist.databinding.ActivitySdkInfoBinding
 import com.lollipop.applist.sdklist.AppSdkInfo
 import java.io.File
@@ -65,6 +65,10 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
 
     private var isLoading = false
 
+    private val saveHelper by lazy {
+        AppSdkSaveHelper(this, sdkInfo)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -81,6 +85,8 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
             binding.actionBar.title = "SDK"
             binding.actionBar.subtitle = appLabel.ifEmpty { packageName }
         }
+        saveHelper.appLabel = appLabel.toString()
+        saveHelper.packageName = packageName
     }
 
     private fun initView() {
@@ -109,18 +115,6 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         )
         binding.swipeRefreshLayout.setOnRefreshListener(this)
         displayHelper.attach(binding.recyclerView)
-    }
-
-    private fun getSaveFileName(): String {
-        var result = ""
-        val label = appLabel.toString()
-        if (label.isNotEmpty()) {
-            result = label.replace("\\s".toRegex(), "_")
-        }
-        if (result.isEmpty()) {
-            result = packageName
-        }
-        return result
     }
 
     override fun onRefresh() {
@@ -176,17 +170,10 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
     }
 
     private fun saveInfo() {
-        InfoSaveHelper.save(
-            context = this,
-            name = getSaveFileName(),
-            infoProvider = {
-                sdkInfo.toJson().toString(4)
-            },
-            onEnd = {
-                Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
-                    .show()
-            }
-        )
+        saveHelper.save {
+            Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun getAppInfoSync() {
@@ -201,7 +188,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         pmFlag = pmFlag or PackageManager.GET_PERMISSIONS
         val manager = packageManager
         val packageInfo = getPackageInfo(pmFlag)
-        sdkInfo.setSelfPackageName(packageInfo.packageName ?: "")
+        sdkInfo.setSelfPackageName(packageInfo.packageName)
         packageInfo.activities?.forEach {
             sdkInfo.check(AppSdkInfo.Type.Activity, it.name)
         }
@@ -239,7 +226,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
         }
 
         sdkInfo.app.let { app ->
-            app.packageName = packageInfo.packageName ?: ""
+            app.packageName = packageInfo.packageName
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 app.versionCode = packageInfo.longVersionCode.toString()
             } else {
@@ -280,7 +267,7 @@ class AppSdkInfoActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshList
                     input?.copyTo(output)
                 }
                 resultInfo = manager.getPackageArchiveInfo(tempApk.absolutePath, flags)
-                packagePath = Uri.parse(tempApk.absolutePath)
+                packagePath = tempApk.absolutePath.toUri()
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
