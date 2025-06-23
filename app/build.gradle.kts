@@ -15,7 +15,7 @@ android {
         applicationId = "com.lollipop.applist"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1_04_01
+        versionCode = 1_05_00
         versionName = "1.5.0"
     }
 
