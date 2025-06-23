@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.applist.R
 import com.lollipop.applist.data.AppInfoDatabase
-import com.lollipop.applist.data.InfoSaveHelper
 import com.lollipop.applist.databinding.ActivityAppPageHistoryBinding
 import com.lollipop.applist.databinding.ItemAppPageBinding
 import com.lollipop.applist.helper.LoadMoreHelper
@@ -55,11 +54,15 @@ class AppPageHistoryActivity : AppCompatActivity() {
         intent.getStringExtra(EXTRA_APP_NAME) ?: ""
     }
 
+    private val saveHelper by lazy {
+        AppPageSaveHelper(this, appInfoDatabase, appPackage, appName)
+    }
+
     private val appInfoDatabase = AppInfoDatabase.Reader()
 
     private var pageIndex = 0
 
-    private val dataList = ArrayList<AppInfoDatabase.AppActivityInfo>()
+    private val dataList = ArrayList<AppPageInfo>()
 
     private val adapter = InfoAdapter(dataList)
 
@@ -113,45 +116,22 @@ class AppPageHistoryActivity : AppCompatActivity() {
     }
 
     private fun saveInfo() {
-        appInfoDatabase.queryAll(appPackage) { list ->
-            InfoSaveHelper.save(
-                context = this,
-                name = appName,
-                infoProvider = {
-                    contentToString(list)
-                },
-                onEnd = {
-                    Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
-                        .show()
-                }
-            )
+        saveHelper.save {
+            Toast.makeText(this, getString(R.string.save_success, it), Toast.LENGTH_SHORT)
+                .show()
         }
-    }
-
-    /**
-     * 耗时操作，需要在子线程执行
-     */
-    private fun contentToString(list: List<AppInfoDatabase.AppActivityInfo>): String {
-        val builder = StringBuilder()
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.getDefault())
-        for (info in list) {
-            builder.append(sdf.format(info.timeDate)).append(" ")
-                .append(info.packageName)
-
-            if (info.flag) {
-                builder.append(" F ")
-            } else {
-                builder.append("   ")
-            }
-            builder.append(info.activityName).append("\n")
-        }
-        return builder.toString()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun loadInfo() {
         val index = pageIndex
-        appInfoDatabase.query(appPackage, index) { result ->
+        appInfoDatabase.query<AppPageInfo>(
+            appPackage,
+            index,
+            mapper = {
+                AppPageInfo.create(it)
+            }
+        ) { result ->
             if (index == 0) {
                 dataList.clear()
                 dataList.addAll(result)
@@ -185,7 +165,7 @@ class AppPageHistoryActivity : AppCompatActivity() {
     }
 
     private class InfoAdapter(
-        private val list: List<AppInfoDatabase.AppActivityInfo>
+        private val list: List<AppPageInfo>
     ) : RecyclerView.Adapter<InfoHolder>() {
 
         private var layoutInflater: LayoutInflater? = null
@@ -217,11 +197,19 @@ class AppPageHistoryActivity : AppCompatActivity() {
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.getDefault())
         }
 
-        fun bind(info: AppInfoDatabase.AppActivityInfo) {
+        @SuppressLint("SetTextI18n")
+        fun bind(info: AppPageInfo) {
             binding.flagIcon.isVisible = info.flag
             binding.timeView.text = sdf.format(info.timeDate)
             binding.pkgView.text = info.packageName
             binding.labelView.text = info.activityName
+            val adDisplay = info.adDisplay
+            if (adDisplay.isNotEmpty()) {
+                binding.adSdkView.isVisible = true
+                binding.adSdkView.text = adDisplay
+            } else {
+                binding.adSdkView.isVisible = false
+            }
         }
 
     }

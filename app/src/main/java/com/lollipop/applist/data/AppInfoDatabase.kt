@@ -49,16 +49,19 @@ sealed class AppInfoDatabase {
     }
 
     class Reader : AppInfoDatabase() {
-        fun query(
+
+        fun <T> query(
             appPkg: String,
             pageIndex: Int,
             pageSize: Int = 40,
-            callback: (List<AppActivityInfo>) -> Unit
+            mapper: (AppActivityInfo) -> T,
+            callback: (List<T>) -> Unit
         ) {
             executor.submit {
                 val result = dbDelegate?.query(appPkg, pageIndex, pageSize) ?: emptyList()
+                val mapResult = result.map(mapper)
                 uiThread.post {
-                    callback(result)
+                    callback(mapResult)
                 }
             }
         }
@@ -74,6 +77,23 @@ sealed class AppInfoDatabase {
                 }
             }
         }
+
+        /**
+         * 异步请求，返回的是一个Runnable，用于在UI线程中执行
+         */
+        fun queryAllAsync(
+            appPkg: String,
+            callback: (List<AppActivityInfo>) -> Runnable?
+        ) {
+            executor.submit {
+                val result = dbDelegate?.queryAll(appPkg) ?: emptyList()
+                val uiTask = callback(result)
+                if (uiTask != null) {
+                    uiThread.post(uiTask)
+                }
+            }
+        }
+
     }
 
     protected class DatabaseDelegate(

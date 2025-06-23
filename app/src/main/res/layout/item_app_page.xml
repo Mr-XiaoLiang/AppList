@@ -41,10 +41,22 @@
         android:text="@string/app_name"
         android:textColor="@color/summaryOnBackground"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/timeView"
+        app:layout_constraintBottom_toTopOf="@id/adSdkView"
         app:layout_constraintEnd_toEndOf="@id/labelView"
         app:layout_constraintStart_toStartOf="@id/labelView"
         app:layout_constraintTop_toBottomOf="@id/labelView" />
+
+    <TextView
+        android:id="@+id/adSdkView"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="@color/summaryOnBackground"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/timeView"
+        app:layout_constraintEnd_toEndOf="@id/labelView"
+        app:layout_constraintStart_toStartOf="@id/labelView"
+        app:layout_constraintTop_toBottomOf="@id/pkgView" />
 
     <TextView
         android:id="@+id/timeView"

@@ -83,24 +83,58 @@ class AppSdkInfo {
         return mutableList
     }
 
-    fun toJson(): JSONArray {
-        val jsonArray = JSONArray()
-        jsonArray.put(getAppInfoJson())
+    fun toJson(): JSONObject {
+        val jsonObject = JSONObject()
+        jsonObject.put("AppInfo", getAppInfoJson())
         val list = getList()
         list.forEach { platform ->
-            val platformObj = JSONObject()
-            platformObj.put("SDK", platform.sdk.label)
-            val itemArray = JSONArray()
-            platform.list.forEach { item ->
-                val itemObj = JSONObject()
-                itemObj.put("type", item.type.label)
-                itemObj.put("value", item.value)
-                itemArray.put(itemObj)
+            // SDK 对象
+            val sdkLabel = if (platform.sdk is SDK.Other) {
+                platform.sdk.label
+            } else {
+                "${platform.sdk.label}(${platform.sdk.typeName})"
             }
-            platformObj.put("items", itemArray)
-            jsonArray.put(platformObj)
+            val platformObj = jsonObject.optJSONObject(sdkLabel) ?: JSONObject().also {
+                jsonObject.put(sdkLabel, it)
+            }
+            // 数据列表
+            platform.list.forEach { item ->
+                // 数据类型
+                val itemType = item.type.label
+                val itemArray = platformObj.optJSONArray(itemType) ?: JSONArray().also {
+                    platformObj.put(itemType, it)
+                }
+                itemArray.put(item.value)
+            }
         }
-        return jsonArray
+        return jsonObject
+    }
+
+    fun toCsv(): String {
+        val builder = CsvHelper.build(
+            "APP", "Package", "Platform", "PlatformType", "SdkType", "Value"
+        )
+        val list = getList()
+
+        val appLabel = app.label
+        val appPackageName = app.packageName
+
+        list.forEach { platform ->
+            val sdkLabel = platform.sdk.label
+            val sdkTypeName = platform.sdk.typeName
+            // 数据列表
+            platform.list.forEach { item ->
+                builder.addLine(
+                    appLabel,
+                    appPackageName,
+                    sdkLabel,
+                    sdkTypeName,
+                    item.type.label,
+                    item.value
+                )
+            }
+        }
+        return builder.build()
     }
 
     private fun getAppInfoJson(): JSONObject {

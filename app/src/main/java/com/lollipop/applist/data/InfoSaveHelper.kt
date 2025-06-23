@@ -20,17 +20,39 @@ object InfoSaveHelper {
         SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault())
     }
 
+    fun saveJson(
+        context: Context,
+        name: String = "",
+        infoProvider: () -> String,
+        onEnd: (String) -> Unit
+    ) {
+        save(context, name, "json", infoProvider, onEnd)
+    }
+
+    fun saveCsv(
+        context: Context,
+        name: String = "",
+        infoProvider: () -> String,
+        onEnd: (String) -> Unit
+    ) {
+        save(context, name, "csv", infoProvider, onEnd)
+    }
+
     fun save(
         context: Context,
         name: String = "",
+        suffix: String = "",
         infoProvider: () -> String,
         onEnd: (String) -> Unit
     ) {
         val fileName = name.ifEmpty {
             "Info-${sdf.format(Date(System.currentTimeMillis()))}"
         }
+        val fileSuffix = suffix.ifEmpty {
+            "txt"
+        }
         Thread {
-            saveImpl(context, infoProvider(), "$fileName.txt", onEnd)
+            saveImpl(context, infoProvider(), "$fileName.${fileSuffix}", onEnd)
         }.start()
     }
 
@@ -93,10 +115,10 @@ object InfoSaveHelper {
                 MediaStore.Images.Media.DISPLAY_NAME,
                 fileName
             )
-            contentValues.put(
-                MediaStore.Images.Media.MIME_TYPE,
-                "text/plain"
-            )
+//            contentValues.put(
+//                MediaStore.Images.Media.MIME_TYPE,
+//                "text/plain"
+//            )
             contentValues.put(
                 MediaStore.Images.Media.RELATIVE_PATH,
                 Environment.DIRECTORY_DOWNLOADS

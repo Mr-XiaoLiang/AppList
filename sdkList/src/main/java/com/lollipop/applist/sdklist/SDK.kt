@@ -12,7 +12,8 @@ sealed class SDK(
     class ADS(
         label: String,
         website: String,
-        keywords: List<String>
+        keywords: List<String>,
+        val adKeyword: AdKeyword
     ) : SDK(label, website, keywords) {
         override val color: Int = 0xFF48990F.toInt()
         override val typeName: String = "ADS"
