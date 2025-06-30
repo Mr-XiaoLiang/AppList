@@ -67,9 +67,19 @@ object JadxTaskManager {
         if (task.isLoading || task.isCompleted) {
             return
         }
-        executor.execute {
+        postAsync {
             try {
                 task.load()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun postAsync(runnable: Runnable) {
+        executor.execute {
+            try {
+                runnable.run()
             } catch (e: Throwable) {
                 e.printStackTrace()
             }

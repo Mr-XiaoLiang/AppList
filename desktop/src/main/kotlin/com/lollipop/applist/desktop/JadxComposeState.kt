@@ -8,7 +8,11 @@ import com.lollipop.applist.jadx.DecompilerMode
 import com.lollipop.applist.jadx.JadxTask
 import com.lollipop.applist.jadx.JadxTaskManager
 import com.lollipop.applist.sdklist.AppSdkInfo
-import com.lollipop.applist.sdklist.SdkKeyword
+import com.lollipop.applist.sdklist.SDK
+import java.awt.Desktop
+import java.io.File
+import java.net.URI
+
 
 object JadxComposeState {
 
@@ -20,7 +24,7 @@ object JadxComposeState {
         }
     private var isInitialized = false
     val sdkInfoList = mutableStateListOf<AppSdkInfo.Platform>()
-    val selectedPlatform = mutableStateOf<SdkKeyword.Sdk?>(null)
+    val selectedPlatform = mutableStateOf<SDK?>(null)
     private val platformSourceCodeOriginal = mutableListOf<String>()
     val platformSourceCodeList = mutableStateListOf<String>()
     var sourceCodeFilter = mutableStateOf("")
@@ -28,6 +32,8 @@ object JadxComposeState {
     val sdkTypeFilterList = mutableStateMapOf<AppSdkInfo.Type, Boolean>()
     val currentTaskCompleted = mutableStateOf(true)
     var decompilerMode = mutableStateOf(true)
+
+    var saveLoading = mutableStateOf(false)
 
     fun getDecompilerModeEnum(): DecompilerMode {
         return if (decompilerMode.value) {
@@ -113,6 +119,37 @@ object JadxComposeState {
         sdkInfoList.clear()
         sdkInfoList.addAll(task.sdkInfo.getList())
         selectPlatform(null)
+    }
+
+    fun openWebsite(url: String) {
+        if (url.isEmpty()) {
+            return
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                val uri = URI(url)
+                Desktop.getDesktop().browse(uri)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun saveCurrentSdkInfo() {
+        saveLoading.value = true
+        val infoList = ArrayList(sdkInfoList)
+        val currentFile = currentTask.value?.file ?: return
+        val parentFile = currentFile.parentFile ?: return
+        val currentFileName = "${currentFile.name}-sdk.csv"
+        val csvFile = File(parentFile, currentFileName)
+        JadxTaskManager.postAsync {
+            val csv = AppSdkInfo.toCsv(null, infoList)
+            FileHelper.writeFile(csvFile, csv)
+            saveLoading.value = false
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(csvFile)
+            }
+        }
     }
 
 }

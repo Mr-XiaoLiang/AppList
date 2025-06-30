@@ -15,6 +15,23 @@ class AppSdkInfo {
         fun setTypeFilter(type: Type, enable: Boolean) {
             typeFilterMap[type] = enable
         }
+
+        fun toCsv(appInfo: AppInfo? = null, platformList: List<Platform>): String {
+            val builder = if (appInfo != null) {
+                CsvHelper.build(
+                    "APP", "Package", "Platform", "PlatformType", "SdkType", "Value"
+                )
+            } else {
+                CsvHelper.build(
+                    "Platform", "PlatformType", "SdkType", "Value"
+                )
+            }
+            platformList.forEach { platform ->
+                platform.toCsv(builder, appInfo)
+            }
+            return builder.build()
+        }
+
     }
 
     private val platformMap = HashMap<String, Platform>()
@@ -111,30 +128,7 @@ class AppSdkInfo {
     }
 
     fun toCsv(): String {
-        val builder = CsvHelper.build(
-            "APP", "Package", "Platform", "PlatformType", "SdkType", "Value"
-        )
-        val list = getList()
-
-        val appLabel = app.label
-        val appPackageName = app.packageName
-
-        list.forEach { platform ->
-            val sdkLabel = platform.sdk.label
-            val sdkTypeName = platform.sdk.typeName
-            // 数据列表
-            platform.list.forEach { item ->
-                builder.addLine(
-                    appLabel,
-                    appPackageName,
-                    sdkLabel,
-                    sdkTypeName,
-                    item.type.label,
-                    item.value
-                )
-            }
-        }
-        return builder.build()
+        return toCsv(app, getList())
     }
 
     private fun getAppInfoJson(): JSONObject {
@@ -184,6 +178,37 @@ class AppSdkInfo {
         fun sort() {
             itemList.sortBy { it.type.ordinal }
         }
+
+        fun toCsv(builder: CsvHelper.Builder, appInfo: AppInfo?) {
+            val sdkLabel = sdk.label
+            val sdkTypeName = sdk.typeName
+            if (appInfo != null) {
+                val appLabel = appInfo.label
+                val appPackageName = appInfo.packageName
+                // 数据列表
+                list.forEach { item ->
+                    builder.addLine(
+                        appLabel,
+                        appPackageName,
+                        sdkLabel,
+                        sdkTypeName,
+                        item.type.label,
+                        item.value
+                    )
+                }
+            } else {
+                // 数据列表
+                list.forEach { item ->
+                    builder.addLine(
+                        sdkLabel,
+                        sdkTypeName,
+                        item.type.label,
+                        item.value
+                    )
+                }
+            }
+        }
+
     }
 
     enum class Type(val label: String, val color: Int) {

@@ -27,6 +27,9 @@ kotlin {
         implementation(compose.preview)
         implementation(compose.uiTooling)
 
+//        implementation(libs.androidx.material3.jvmstubs)
+        implementation(compose.uiUtil)
+
         // system
         implementation(compose.desktop.currentOs)
         implementation(compose.desktop.linux_x64)
@@ -42,12 +45,13 @@ kotlin {
     }
 
 }
+
 compose.desktop {
     application {
         mainClass = "AppListDesktopKt"
         jvmArgs += listOf("-Xmx2G")
         val appName = "AppList"
-        val versionName = "1.2.0"
+        val versionName = "1.3.0"
         val pkgName = "com.lollipop.applist.desktop"
         val sdf = SimpleDateFormat("yyyyMMdd-HHmmss")
         val buildVersion = "${versionName}-${sdf.format(Date(System.currentTimeMillis()))}"

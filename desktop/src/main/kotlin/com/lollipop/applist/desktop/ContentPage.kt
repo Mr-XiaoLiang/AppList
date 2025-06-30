@@ -2,7 +2,6 @@ package com.lollipop.applist.desktop
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
@@ -12,15 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lollipop.applist.jadx.JadxTask
@@ -35,6 +33,7 @@ fun ContentPage(task: JadxTask?) {
     val sdkTypeFilterList = remember { JadxComposeState.sdkTypeFilterList }
     val selectedPlatform by remember { JadxComposeState.selectedPlatform }
     val sourceCodeFilter by remember { JadxComposeState.sourceCodeFilter }
+    val saveLoading by remember { JadxComposeState.saveLoading }
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp)
     ) {
@@ -70,20 +69,56 @@ fun ContentPage(task: JadxTask?) {
                     }
                 }
             }
-            Button(
-                onClick = {
-                    task.reload()
-                },
+            Row(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Button(
+                    onClick = {
+                        task.reload()
+                    },
                 ) {
-                    Image(
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = "Refresh",
-                        colorFilter = ColorFilter.tint(Color.White)
-                    )
-                    Text(text = "刷新", color = Color.White, fontSize = 14.sp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = "Refresh",
+                            modifier = Modifier.width(24.dp).height(24.dp),
+                            tint = Color.White
+                        )
+                        Text(text = "刷新", color = Color.White, fontSize = 14.sp)
+                    }
+                }
+                Button(
+                    onClick = {
+                        if (!saveLoading) {
+                            JadxComposeState.saveCurrentSdkInfo()
+                        }
+                    },
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (saveLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(24.dp).height(24.dp).padding(2.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                                strokeCap = StrokeCap.Round,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.Save,
+                                contentDescription = "Save",
+                                modifier = Modifier.width(24.dp).height(24.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Text(text = "保存", color = Color.White, fontSize = 14.sp)
+                    }
                 }
             }
         }
@@ -118,29 +153,75 @@ fun ContentPage(task: JadxTask?) {
                                     },
                                     shape = RoundedCornerShape(6.dp)
                                 ).padding(4.dp)
-                                .onClick {
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = platform.sdk.typeName,
+                                    color = Color.White,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                                        .background(
+                                            color = Color(platform.sdk.color),
+                                            shape = RoundedCornerShape(4.dp)
+                                        ).padding(horizontal = 4.dp, vertical = 2.dp)
+                                )
+                                SelectionContainer(
+                                    modifier = Modifier.weight(1F)
+                                ) {
+                                    Text(
+                                        text = platform.sdk.label,
+                                        color = if (isSelectedPlatform) {
+                                            MaterialTheme.colors.primary
+                                        } else {
+                                            Color(0xFF333333.toInt())
+                                        },
+                                        fontSize = 22.sp,
+                                        modifier = Modifier.padding(vertical = 6.dp)
+                                    )
+                                }
+                                if (platform.sdk.website.isNotEmpty()) {
+                                    IconButton(onClick = {
+                                        JadxComposeState.openWebsite(platform.sdk.website)
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Language,
+                                            contentDescription = "官网",
+                                            modifier = Modifier.width(24.dp).height(24.dp),
+                                            tint = Color.Gray
+                                        )
+                                    }
+                                }
+                                IconButton(onClick = {
                                     if (isSelectedPlatform) {
                                         JadxComposeState.selectPlatform(null)
                                     } else {
                                         JadxComposeState.selectPlatform(platform)
                                     }
-                                }
-                        ) {
-                            SelectionContainer {
-                                Text(
-                                    text = platform.sdk.label,
-                                    color = if (isSelectedPlatform) {
-                                        MaterialTheme.colors.primary
+                                }) {
+                                    if (isSelectedPlatform) {
+                                        Icon(
+                                            imageVector = Icons.Filled.UnfoldLess,
+                                            contentDescription = "折叠",
+                                            modifier = Modifier.width(24.dp).height(24.dp),
+                                            tint = Color.Gray
+                                        )
                                     } else {
-                                        Color(0xFF333333.toInt())
-                                    },
-                                    fontSize = 22.sp,
-                                    modifier = Modifier.padding(vertical = 6.dp)
-                                )
+                                        Icon(
+                                            imageVector = Icons.Filled.UnfoldMore,
+                                            contentDescription = "展开",
+                                            modifier = Modifier.width(24.dp).height(24.dp),
+                                            tint = Color.Gray
+                                        )
+                                    }
+                                }
                             }
                             platform.list.forEach { item ->
                                 Row(
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(start = 24.dp)
                                 ) {
                                     Text(
                                         text = item.type.label,
@@ -155,11 +236,14 @@ fun ContentPage(task: JadxTask?) {
                                                 shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 4.dp, vertical = 2.dp)
                                     )
-                                    SelectionContainer {
+                                    SelectionContainer(
+                                        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                                    ) {
                                         Text(
                                             text = item.value,
                                             color = Color(0xFF666666.toInt()),
-                                            fontSize = 14.sp
+                                            fontSize = 14.sp,
+                                            modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                         )
                                     }
                                 }

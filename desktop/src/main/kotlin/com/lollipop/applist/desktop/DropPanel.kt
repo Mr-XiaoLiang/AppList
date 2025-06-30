@@ -1,8 +1,10 @@
 package com.lollipop.applist.desktop
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.onClick
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -43,10 +45,12 @@ fun DragBox(
                         isDragging = false
                         return true
                     }
+
                     override fun onExited(event: DragAndDropEvent) {
                         isDragging = false
                         println("DragBox.onExited")
                     }
+
                     override fun onEntered(event: DragAndDropEvent) {
                         isDragging = true
                         println("DragBox.onEntered")
@@ -62,24 +66,42 @@ fun DragBox(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DragMask(
     modifier: Modifier = Modifier.fillMaxSize()
         .background(Color(255, 255, 255, 160)),
+    title: String = "",
+    clickable: Boolean = false,
     color: Color = MaterialTheme.colors.primary
 ) {
+    val titleInfo = title.ifEmpty {
+        if (clickable) {
+            "拖拽或点击上传"
+        } else {
+            "拖拽上传"
+        }
+    }
+    val clickableModifier: Modifier = if (clickable) {
+        modifier.onClick {
+            JadxFileHelper.openFileChooser()
+        }
+    } else {
+        modifier
+    }
+
     Column(
-        modifier = modifier,
+        modifier = clickableModifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             imageVector = Icons.Filled.Download,
-            contentDescription = "拖拽上传",
+            contentDescription = titleInfo,
             modifier = Modifier.width(56.dp).height(56.dp),
             tint = color
         )
-        Text(text = "拖拽上传", fontSize = 18.sp, color = color)
+        Text(text = titleInfo, fontSize = 18.sp, color = color)
     }
 }
 
