@@ -1,0 +1,6 @@
+-dontwarn com.google.protobuf.**
+-dontwarn com.google.common.**
+-dontwarn com.google.gson.**
+-dontwarn com.android.tools.**
+-dontwarn org.slf4j.**
+-dontwarn org.stringtemplate.**

@@ -19,11 +19,11 @@ class AppSdkInfo {
         fun toCsv(appInfo: AppInfo? = null, platformList: List<Platform>): String {
             val builder = if (appInfo != null) {
                 CsvHelper.build(
-                    "APP", "Package", "Platform", "PlatformType", "SdkType", "Value"
+                    "APP", "Package", "Platform", "PlatformType", "SdkType", "Value", "AdType"
                 )
             } else {
                 CsvHelper.build(
-                    "Platform", "PlatformType", "SdkType", "Value"
+                    "Platform", "PlatformType", "SdkType", "Value", "AdType"
                 )
             }
             platformList.forEach { platform ->
@@ -193,7 +193,8 @@ class AppSdkInfo {
                         sdkLabel,
                         sdkTypeName,
                         item.type.label,
-                        item.value
+                        item.value,
+                        getAdType(item.value)
                     )
                 }
             } else {
@@ -203,23 +204,31 @@ class AppSdkInfo {
                         sdkLabel,
                         sdkTypeName,
                         item.type.label,
-                        item.value
+                        item.value,
+                        getAdType(item.value)
                     )
                 }
             }
         }
 
+        private fun getAdType(value: String): String {
+            if (sdk is SDK.ADS) {
+                return sdk.adKeyword.match(value).name
+            }
+            return ""
+        }
+
     }
 
-    enum class Type(val label: String, val color: Int) {
-        Activity("Activity", 0xFFB50000.toInt()),
-        Service("Service", 0xFFB57300.toInt()),
-        Provider("Provider", 0xFF7FB500.toInt()),
-        Receiver("Receiver", 0xFF00B57C.toInt()),
-        MetaData("MetaData", 0xFF0076B5.toInt()),
-        Permission("Permission", 0xFF9400B5.toInt()),
-        Native("Native", 0xFF00DEB6.toInt()),
-        SourceCode("SourceCode", 0xFF8DD338.toInt())
+    enum class Type(val label: String, val display: String, val color: Int) {
+        Activity(label = "Activity", display = "活动(Activity)", color = 0xFFB50000.toInt()),
+        Service(label = "Service", display = "服务(Service)", color = 0xFFB57300.toInt()),
+        Provider(label = "Provider", display = "提供器(Provider)", color = 0xFF7FB500.toInt()),
+        Receiver(label = "Receiver", display = "广播(Receiver)", color = 0xFF00B57C.toInt()),
+        MetaData(label = "MetaData", display = "元数据(MetaData)", color = 0xFF0076B5.toInt()),
+        Permission(label = "Permission", display = "权限(Permission)", color = 0xFF9400B5.toInt()),
+        Native(label = "Native", display = "动态库(Native)", color = 0xFF00DEB6.toInt()),
+        SourceCode(label = "SourceCode", display = "源码(SourceCode)", color = 0xFF8DD338.toInt())
     }
 
     class Item(

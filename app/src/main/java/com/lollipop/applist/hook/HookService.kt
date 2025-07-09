@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Handler
@@ -17,15 +16,12 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import com.lollipop.applist.R
 import com.lollipop.applist.data.AppInfoDatabase
+import com.lollipop.applist.ui.state.HookStateController
 
 class HookService : AccessibilityService() {
 
     companion object {
 
-        var isActive: Boolean = false
-            private set
-
-        private const val NOTIFICATION_ID = 6666
         private const val NOTIFICATION_CHANNEL_ID = "com.lollipop.applist.ongoing"
         private const val NOTIFICATION_CHANNEL_NAME = "OnGoing Notifications"
 
@@ -34,19 +30,10 @@ class HookService : AccessibilityService() {
 
         private const val USAGE_STATS_DELAY = 310L
 
-        private const val SP_KEY_ONLY_CHANGED = "save_only_changed"
+        var isActive: Boolean = false
+            private set
 
-        fun saveOnlyChanged(context: Context, flag: Boolean) {
-            context.getSharedPreferences("AppList", MODE_PRIVATE)
-                .edit()
-                .putBoolean(SP_KEY_ONLY_CHANGED, flag)
-                .apply()
-        }
-
-        fun getOnlyChanged(context: Context): Boolean {
-            return context.getSharedPreferences("AppList", MODE_PRIVATE)
-                .getBoolean(SP_KEY_ONLY_CHANGED, false)
-        }
+        private const val NOTIFICATION_ID = 6666
 
     }
 
@@ -71,7 +58,7 @@ class HookService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        isSaveOnlyChanged = getOnlyChanged(this)
+        isSaveOnlyChanged = HookStateController.Settings.getOnlyChanged(this)
         newPkgTime = now()
         notifyActive()
     }
@@ -111,7 +98,7 @@ class HookService : AccessibilityService() {
                 PendingIntent.getActivity(
                     this,
                     NOTIFICATION_ID,
-                    Intent(this, HookSettingActivity::class.java),
+                    HookStateController.settingsActivity(this),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 ),
                 true

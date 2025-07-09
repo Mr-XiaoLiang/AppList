@@ -13,4 +13,5 @@
     <string name="label_switch_only_change">仅在发生变更时记录</string>
     <string name="label_switch_notification">通知权限</string>
     <string name="label_app_page_history">应用页面历史</string>
+    <string name="title_activity_compose_main">ComposeMainActivity</string>
 </resources>

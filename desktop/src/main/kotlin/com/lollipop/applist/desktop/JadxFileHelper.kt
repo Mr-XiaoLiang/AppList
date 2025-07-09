@@ -54,7 +54,6 @@ object JadxFileHelper {
     }
 
     fun openFileChooser() {
-
         val currentDir = fileChooserDir()
         val chooser = JFileChooser()
         chooser.setCurrentDirectory(currentDir)

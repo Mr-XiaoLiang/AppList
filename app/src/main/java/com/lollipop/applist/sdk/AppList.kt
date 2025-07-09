@@ -134,7 +134,7 @@ object AppOptionHelper {
         QuickAppHelper.saveQuickApp(context)
     }
 
-    private fun openApp(context: Context, packageName: String) {
+    fun openApp(context: Context, packageName: String) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
             context.startActivity(intent)

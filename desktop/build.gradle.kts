@@ -48,10 +48,18 @@ kotlin {
 
 compose.desktop {
     application {
+
+        buildTypes.release {
+            proguard {
+                configurationFiles.from(file("proguard-rules.pro"))
+                isEnabled = false
+            }
+        }
+
         mainClass = "AppListDesktopKt"
         jvmArgs += listOf("-Xmx2G")
         val appName = "AppList"
-        val versionName = "1.3.0"
+        val versionName = "1.4.0"
         val pkgName = "com.lollipop.applist.desktop"
         val sdf = SimpleDateFormat("yyyyMMdd-HHmmss")
         val buildVersion = "${versionName}-${sdf.format(Date(System.currentTimeMillis()))}"

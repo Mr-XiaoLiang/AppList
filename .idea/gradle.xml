@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/sdkList" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

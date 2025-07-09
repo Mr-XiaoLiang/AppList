@@ -24,12 +24,17 @@ object AdsSDK {
             label = "Amazon",
             website = "https://aps.amazon.com/aps/index.html",
             keywords = listOf("com.amazon.aps.ads", "com.amazon.device.ads")
-        ) {},
+        ) {
+            add("com.amazon.aps.ads.activity.ApsInterstitialActivity", AdType.INTERSTITIAL)
+        },
         ads(
             label = "Applovin",
             website = "https://www.applovin.com/cn/",
             keywords = listOf("com.applovin")
-        ) {},
+        ) {
+            add("com.applovin.adview.AppLovinFullscreenActivity", AdType.INTERSTITIAL)
+
+        },
         ads(
             label = "AppNext",
             website = "https://www.appnext.com/",
@@ -64,7 +69,9 @@ object AdsSDK {
             label = "Chartboost",
             website = "https://docs.chartboost.com/zh/monetization/get-started/",
             keywords = listOf("com.chartboost.sdk")
-        ) {},
+        ) {
+            add("com.chartboost.sdk.view.CBImpressionActivity", AdType.REWARD)
+        },
         ads(
             label = "ByteDance",
             website = "https://www.pangleglobal.com/zh",
@@ -145,7 +152,9 @@ object AdsSDK {
             label = "Liftoff(Vungle)",
             website = "https://liftoff.io/",
             keywords = listOf("com.vungle")
-        ) {},
+        ) {
+            add("com.vungle.warren.ui.VungleActivity", AdType.REWARD)
+        },
         ads(
             label = "Line",
             website = "https://tw.linebiz.com/service/display-solutions/line-ads-platform/",
@@ -167,7 +176,9 @@ object AdsSDK {
             label = "Mintegral",
             website = "https://www.mintegral.com/en",
             keywords = listOf("com.mbridge.msdk")
-        ) {},
+        ) {
+            add("com.mbridge.msdk.reward.player.MBRewardVideoActivity", AdType.REWARD)
+        },
         ads(
             label = "MobileFuse",
             website = "https://docs.mobilefuse.com/docs/android-banner-ads",

@@ -110,6 +110,14 @@ object JadxComposeState {
         }
     }
 
+    fun removeTask(task: JadxTask) {
+        JadxFileHelper.taskList.remove(task)
+        if (currentTask.value == task) {
+            currentTask(null)
+        }
+        JadxTaskManager.removeTask(task)
+    }
+
     fun setSdkTypeEnable(type: AppSdkInfo.Type, enable: Boolean) {
         sdkTypeFilterList[type] = enable
         AppSdkInfo.setTypeFilter(type, enable)

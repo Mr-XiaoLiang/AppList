@@ -4,20 +4,15 @@ import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+import com.lollipop.applist.ui.state.AppLauncher
 import org.json.JSONArray
 import java.io.File
-import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
 object QuickAppHelper {
 
     private const val TAG = "QuickAppHelper"
     private const val QUICK_APP_FILE_NAME = "quick_app.json"
-
-    private val observerList = ArrayList<OnQuickAppChangeListener>()
 
     private val quickAppSet = ConcurrentHashMap<String, String>()
 
@@ -39,13 +34,7 @@ object QuickAppHelper {
 
     private val notifyTask = Runnable {
         try {
-            observerList.forEach {
-                try {
-                    it.onQuickAppChange()
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                }
-            }
+            AppLauncher.onQuickAppChange()
         } catch (e: Throwable) {
             e.printStackTrace()
         }
@@ -60,6 +49,10 @@ object QuickAppHelper {
             }
             file.writeText(jsonArray.toString())
         }
+    }
+
+    fun init(context: Context) {
+        rememberQuickAppFile(context)
     }
 
     private fun rememberQuickAppFile(context: Context): File {
@@ -87,15 +80,21 @@ object QuickAppHelper {
         return quickAppSet.containsKey(pkgName)
     }
 
-    fun saveQuickApp(context: Context) {
-        rememberQuickAppFile(context)
+    fun saveQuickApp(context: Context? = null) {
+        if (context != null) {
+            rememberQuickAppFile(context)
+        }
         ioThread.removeCallbacks(saveTask)
         ioThread.postDelayed(saveTask, 100)
     }
 
-    fun loadQuickApp(context: Context) {
-        val file = rememberQuickAppFile(context)
-        if (!file.exists()) {
+    fun loadQuickApp(context: Context? = null) {
+        val file = if (context != null) {
+            rememberQuickAppFile(context)
+        } else {
+            quickAppFile
+        }
+        if (file == null || !file.exists()) {
             return
         }
         ioThread.post {
@@ -105,79 +104,6 @@ object QuickAppHelper {
                 quickAppSet[pkgName] = TAG
             }
             postNotify()
-        }
-    }
-
-    fun interface OnQuickAppChangeListener {
-        fun onQuickAppChange()
-    }
-
-    fun addOnQuickAppChangeListener(listener: OnQuickAppChangeListener) {
-        observerList.add(listener)
-    }
-
-    fun removeOnQuickAppChangeListener(listener: OnQuickAppChangeListener) {
-        observerList.remove(listener)
-    }
-
-    fun addOnQuickAppChangeListener(source: LifecycleOwner, listener: OnQuickAppChangeListener) {
-        addOnQuickAppChangeListener(LifecycleObserver(source, listener))
-    }
-
-    class LifecycleObserver(
-        source: LifecycleOwner,
-        private val impl: OnQuickAppChangeListener
-    ) : LifecycleEventObserver, OnQuickAppChangeListener {
-
-        private var currentState: Lifecycle.State = source.lifecycle.currentState
-        private var lifecycleObserver: WeakReference<LifecycleOwner> = WeakReference(source)
-        private var pendingUpdate = false
-
-        init {
-            source.lifecycle.addObserver(this)
-        }
-
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            currentState = event.targetState
-            if (lifecycleObserver.get() !== source) {
-                lifecycleObserver.get()?.lifecycle?.removeObserver(this)
-                source.lifecycle.addObserver(this)
-                lifecycleObserver = WeakReference(source)
-            }
-            if (event == Lifecycle.Event.ON_RESUME && pendingUpdate) {
-                invokeCallback()
-            }
-        }
-
-        private fun invokeCallback() {
-            impl.onQuickAppChange()
-            pendingUpdate = false
-        }
-
-        override fun onQuickAppChange() {
-            when (currentState) {
-                Lifecycle.State.DESTROYED -> {
-                    lifecycleObserver.get()?.lifecycle?.removeObserver(this)
-                    lifecycleObserver.clear()
-                    removeOnQuickAppChangeListener(this)
-                }
-
-                Lifecycle.State.INITIALIZED -> {
-                    pendingUpdate = true
-                }
-
-                Lifecycle.State.CREATED -> {
-                    pendingUpdate = true
-                }
-
-                Lifecycle.State.STARTED -> {
-                    pendingUpdate = true
-                }
-
-                Lifecycle.State.RESUMED -> {
-                    invokeCallback()
-                }
-            }
         }
     }
 
